@@ -42,9 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
             this.radius = Math.random() * 1.8 + 1; // 1px to 2.8px
             this.baseAlpha = Math.random() * 0.35 + 0.15; // 0.15 to 0.5
             this.alpha = this.baseAlpha;
-            // 70% gold, 30% white nodes
-            this.isGold = Math.random() < 0.7;
-            this.color = this.isGold ? '201, 168, 106' : '255, 255, 255';
+            // 70% teal, 30% white nodes
+            this.isTeal = Math.random() < 0.7;
+            this.color = this.isTeal ? '100, 255, 218' : '255, 255, 255';
         }
 
         update() {
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
             // Draw particle with subtle glow on gold ones
             ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
-            if (this.isGold) {
+            if (this.isTeal) {
                 ctx.shadowBlur = 8;
                 ctx.shadowColor = `rgba(${this.color}, 0.5)`;
             }
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.beginPath();
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(mouse.x, mouse.y);
-                    ctx.strokeStyle = `rgba(201, 168, 106, ${lineOpacity})`;
+                    ctx.strokeStyle = `rgba(100, 255, 218, ${lineOpacity})`;
                     ctx.lineWidth = 0.8;
                     ctx.stroke();
                 }
@@ -132,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.lineTo(p2.x, p2.y);
                     
                     // Connection line color blends
-                    if (p1.isGold && p2.isGold) {
-                        ctx.strokeStyle = `rgba(201, 168, 106, ${lineOpacity})`;
+                    if (p1.isTeal && p2.isTeal) {
+                        ctx.strokeStyle = `rgba(100, 255, 218, ${lineOpacity})`;
                     } else {
                         ctx.strokeStyle = `rgba(255, 255, 255, ${lineOpacity * 0.6})`;
                     }
