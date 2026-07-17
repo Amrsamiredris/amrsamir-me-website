@@ -1,11 +1,32 @@
 /**
- * FlowFest-Inspired GSAP Animations & Speech Prompt Sequence
+ * FlowFest-Inspired GSAP Animations, Lenis Smooth Scroll, Parallax & Active Polish
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Register GSAP TextPlugin if available
-    if (typeof gsap !== 'undefined' && typeof TextPlugin !== 'undefined') {
-        gsap.registerPlugin(TextPlugin);
+    // Register GSAP Plugins
+    if (typeof gsap !== 'undefined') {
+        if (typeof TextPlugin !== 'undefined') gsap.registerPlugin(TextPlugin);
+        if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
+    }
+
+    // Initialize Lenis Smooth Scrolling
+    let lenis;
+    if (typeof Lenis !== 'undefined') {
+        lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smoothWheel: true,
+            wheelMultiplier: 1.1
+        });
+
+        if (typeof ScrollTrigger !== 'undefined') {
+            lenis.on('scroll', ScrollTrigger.update);
+        }
+
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+        gsap.ticker.fps(60);
     }
 
     const loader = document.getElementById('loader');
@@ -22,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Welcome to my personal portal across the MENA region ✨"
     ];
 
-    // Ensure initial states before animation starts
+    // Ensure initial states
     gsap.set(contentWrapper, { opacity: 0, y: 30 });
     gsap.set(chatText, { text: "..." });
 
@@ -83,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         delay: 0.2
     });
 
-    // 4. Subtle, continuous floating animation on the Builder Avatar
+    // 4. Subtle floating animation on Builder Avatar
     gsap.to(builderAvatar, {
         y: -8,
         duration: 2.2,
@@ -92,9 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ease: "sine.inOut"
     });
 
-    // 5. Interactive Hover & Tap Reactions
+    // 5. Interactive Hover & Tap Reactions on Avatar
     let isInteracting = false;
-    let hoverTimeout = null;
 
     function showRandomMessage() {
         if (isInteracting) return;
@@ -136,33 +156,145 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (builderCombo) {
-        // Desktop Hover
         builderCombo.addEventListener('mouseenter', () => {
-            // Only trigger if timeline has finished
-            if (!tl.isActive()) {
-                showRandomMessage();
-            }
+            if (!tl.isActive()) showRandomMessage();
         });
 
         builderCombo.addEventListener('mouseleave', () => {
-            if (!tl.isActive()) {
-                revertToDefault();
-            }
+            if (!tl.isActive()) revertToDefault();
         });
 
-        // Mobile Tap / Click
         builderCombo.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (!tl.isActive()) {
-                showRandomMessage();
-            }
+            if (!tl.isActive()) showRandomMessage();
         });
     }
 
-    // Tap outside on mobile reverts text
     document.addEventListener('click', (e) => {
         if (builderCombo && !builderCombo.contains(e.target) && !tl.isActive() && isInteracting) {
             revertToDefault();
         }
+    });
+
+    // ==========================================================================
+    // GSAP ScrollTrigger Background Parallax & Floating Shapes
+    // ==========================================================================
+    const floatingShapes = gsap.utils.toArray('.floating-shape');
+    
+    floatingShapes.forEach((shape, index) => {
+        const speed = parseFloat(shape.getAttribute('data-speed') || 0.2);
+        
+        // Continuous infinite rotation
+        gsap.to(shape, {
+            rotation: (index % 2 === 0 ? 360 : -360),
+            duration: 20 + index * 5,
+            repeat: -1,
+            ease: "none"
+        });
+
+        // Vertical scroll displacement
+        if (typeof ScrollTrigger !== 'undefined') {
+            gsap.to(shape, {
+                yPercent: speed * 500,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: document.body,
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: true
+                }
+            });
+        }
+    });
+
+    // Mouse Parallax Reaction on Background Shapes
+    window.addEventListener('mousemove', (e) => {
+        const mouseX = (e.clientX - window.innerWidth / 2) / window.innerWidth;
+        const mouseY = (e.clientY - window.innerHeight / 2) / window.innerHeight;
+
+        floatingShapes.forEach((shape) => {
+            const speed = parseFloat(shape.getAttribute('data-speed') || 0.2);
+            gsap.to(shape, {
+                x: mouseX * speed * 120,
+                y: mouseY * speed * 120,
+                duration: 1.5,
+                ease: "power2.out"
+            });
+        });
+    });
+
+    // ==========================================================================
+    // GSAP ScrollTrigger Staggered Reveals
+    // ==========================================================================
+    if (typeof ScrollTrigger !== 'undefined') {
+        // Capabilities Cards Reveal
+        const capCards = document.querySelectorAll('.cap-card');
+        if (capCards.length > 0) {
+            gsap.from(capCards, {
+                scrollTrigger: {
+                    trigger: '.capabilities-section',
+                    start: 'top 82%',
+                    toggleActions: 'play none none none'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.75,
+                stagger: 0.15,
+                ease: 'back.out(1.5)'
+            });
+        }
+
+        // Contact Cards Reveal
+        const contactCards = document.querySelectorAll('.contact-card');
+        if (contactCards.length > 0) {
+            gsap.from(contactCards, {
+                scrollTrigger: {
+                    trigger: '.contact-section',
+                    start: 'top 85%',
+                    toggleActions: 'play none none none'
+                },
+                y: 40,
+                opacity: 0,
+                duration: 0.65,
+                stagger: 0.12,
+                ease: 'back.out(1.4)'
+            });
+        }
+    }
+
+    // ==========================================================================
+    // Interactive 3D Tilt Physics for Cards
+    // ==========================================================================
+    const tiltCards = document.querySelectorAll('.tilt-card');
+    
+    tiltCards.forEach((card) => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -6; // Max 6 deg tilt
+            const rotateY = ((x - centerX) / centerX) * 6;
+            
+            gsap.to(card, {
+                rotateX: rotateX,
+                rotateY: rotateY,
+                transformPerspective: 1000,
+                duration: 0.3,
+                ease: "power2.out"
+            });
+        });
+
+        card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+                rotateX: 0,
+                rotateY: 0,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        });
     });
 });

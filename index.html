@@ -26,8 +26,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 
-    <!-- GSAP for FlowFest-style animations -->
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://cdn.jsdelivr.net/npm/@lenis/lenis@1.1.13/dist/lenis.min.js"></script>
+
+    <!-- GSAP & Plugins for FlowFest-style animations -->
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/TextPlugin.min.js"></script>
 
     <!-- CSS Link -->
@@ -45,10 +49,23 @@
         </div>
     </div>
 
-    <!-- Background Decorative Grid/Shapes -->
+    <!-- Background Floating Parallax Vectors -->
     <div class="bg-decoration">
-        <div class="bg-shape bg-shape-1"></div>
-        <div class="bg-shape bg-shape-2"></div>
+        <div class="floating-shape shape-star shape-1" data-speed="0.15">
+            <svg viewBox="0 0 100 100" width="70" height="70"><polygon points="50,5 62,38 97,38 68,58 79,91 50,70 21,91 32,58 3,38 38,38" fill="#f489a3" stroke="#121212" stroke-width="4"/></svg>
+        </div>
+        <div class="floating-shape shape-bolt shape-2" data-speed="-0.22">
+            <svg viewBox="0 0 100 100" width="65" height="65"><polygon points="55,5 15,55 50,55 40,95 85,42 50,42" fill="#f3a20f" stroke="#121212" stroke-width="4.5"/></svg>
+        </div>
+        <div class="floating-shape shape-gear shape-3" data-speed="0.28">
+            <svg viewBox="0 0 100 100" width="80" height="80"><circle cx="50" cy="50" r="30" fill="#64ffda" stroke="#121212" stroke-width="4.5"/><circle cx="50" cy="50" r="12" fill="#f3ecd2" stroke="#121212" stroke-width="4.5"/><path d="M50 5 v12 M50 83 v12 M5 50 h12 M83 50 h12 M18 18 l8 8 M74 74 l8 8 M18 82 l8 -8 M74 26 l8 -8" stroke="#121212" stroke-width="6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="floating-shape shape-spark shape-4" data-speed="-0.18">
+            <svg viewBox="0 0 100 100" width="60" height="60"><polygon points="50,0 60,40 100,50 60,60 50,100 40,60 0,50 40,40" fill="#f97028" stroke="#121212" stroke-width="4"/></svg>
+        </div>
+        <div class="floating-shape shape-circle shape-5" data-speed="0.2">
+            <svg viewBox="0 0 100 100" width="50" height="50"><circle cx="50" cy="50" r="40" fill="#fffefb" stroke="#121212" stroke-width="5"/></svg>
+        </div>
     </div>
     
     <div class="main-container">
@@ -59,15 +76,11 @@
             <div class="builder-combo" id="builderCombo">
                 <div class="builder-avatar">
                     <!-- Custom Neo-Brutalist Builder / AI Architect SVG -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="90" height="90">
-                        <!-- Head base -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="95" height="95">
                         <rect x="15" y="25" width="90" height="80" rx="28" fill="#f3a20f" stroke="#121212" stroke-width="4.5"/>
-                        <!-- Ears/Gears side -->
                         <rect x="5" y="50" width="10" height="24" rx="4" fill="#f489a3" stroke="#121212" stroke-width="4"/>
                         <rect x="105" y="50" width="10" height="24" rx="4" fill="#f489a3" stroke="#121212" stroke-width="4"/>
-                        <!-- Antenna/Hat Top -->
                         <path d="M60 25 V 8 M 60 8 m -8, 0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0" fill="#f97028" stroke="#121212" stroke-width="4.5"/>
-                        <!-- Cool Glasses/Visor -->
                         <rect x="28" y="45" width="64" height="24" rx="12" fill="#121212"/>
                         <circle cx="45" cy="57" r="4" fill="#64ffda"/>
                         <circle cx="75" cy="57" r="4" fill="#64ffda"/>
@@ -94,7 +107,7 @@
             <p class="tagline">Full spectrum Events Production & Digital Marketing | MENA</p>
 
             <!-- About Card -->
-            <div class="about-card">
+            <div class="about-card tilt-card">
                 <p class="about-text">
                     Senior Project Manager & Builder delivering mega events, large scale government productions, and AI-enabled technical workflows across the Middle East.
                 </p>
@@ -110,14 +123,53 @@
                 </a>
             </div>
 
-            <!-- Separator Line -->
-            <div class="separator"></div>
+            <!-- Infinite Marquee Ticker Band -->
+            <div class="ticker-banner">
+                <div class="ticker-track">
+                    <div class="ticker-item">✦ SENIOR PROJECT MANAGER</div>
+                    <div class="ticker-item">✦ MEGA EVENTS PRODUCTION</div>
+                    <div class="ticker-item">✦ AI ENGINEERING & AUTOMATION</div>
+                    <div class="ticker-item">✦ GOVERNMENT PRODUCTIONS</div>
+                    <div class="ticker-item">✦ DUBAI & MENA REGION</div>
+                    <div class="ticker-item">✦ STRATEGIC LEADERSHIP</div>
+                    <!-- Duplicate for seamless infinite loop -->
+                    <div class="ticker-item">✦ SENIOR PROJECT MANAGER</div>
+                    <div class="ticker-item">✦ MEGA EVENTS PRODUCTION</div>
+                    <div class="ticker-item">✦ AI ENGINEERING & AUTOMATION</div>
+                    <div class="ticker-item">✦ GOVERNMENT PRODUCTIONS</div>
+                    <div class="ticker-item">✦ DUBAI & MENA REGION</div>
+                    <div class="ticker-item">✦ STRATEGIC LEADERSHIP</div>
+                </div>
+            </div>
+
+            <!-- Capabilities Section (Triggered by Scroll) -->
+            <section class="capabilities-section" aria-label="Core Capabilities">
+                <h2 class="section-title">CORE CAPABILITIES</h2>
+                <div class="capabilities-grid">
+                    <div class="cap-card tilt-card">
+                        <div class="cap-badge badge-mango">01 / EVENTS</div>
+                        <h3 class="cap-heading">Mega Productions</h3>
+                        <p class="cap-desc">Leading multidisciplinary teams to execute large-scale government & cultural productions across the region with flawless technical delivery.</p>
+                    </div>
+                    <div class="cap-card tilt-card">
+                        <div class="cap-badge badge-pink">02 / MARKETING</div>
+                        <h3 class="cap-heading">Digital Ecosystems</h3>
+                        <p class="cap-desc">Orchestrating full-funnel digital campaigns, data-driven engagement, and high-impact brand strategies tailored for diverse audiences.</p>
+                    </div>
+                    <div class="cap-card tilt-card">
+                        <div class="cap-badge badge-teal">03 / AI & TECH</div>
+                        <h3 class="cap-heading">AI Workflows</h3>
+                        <p class="cap-desc">Leveraging cutting-edge generative AI tools and automated engineering pipelines to supercharge project velocity and operational precision.</p>
+                    </div>
+                </div>
+            </section>
 
             <!-- Contact Row -->
             <section class="contact-section" aria-label="Contact Information">
+                <h2 class="section-title">CONNECT DIRECTLY</h2>
                 <div class="contact-grid">
                     <!-- Email -->
-                    <a href="mailto:amrsamiredris@gmail.com" class="contact-card card-email" onclick="umami.track('contact_email_click')">
+                    <a href="mailto:amrsamiredris@gmail.com" class="contact-card card-email tilt-card" onclick="umami.track('contact_email_click')">
                         <div class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                         </div>
@@ -128,7 +180,7 @@
                     </a>
 
                     <!-- WhatsApp -->
-                    <a href="https://wa.me/971542191028" target="_blank" rel="noopener noreferrer" class="contact-card card-whatsapp" onclick="umami.track('contact_whatsapp_click')">
+                    <a href="https://wa.me/971542191028" target="_blank" rel="noopener noreferrer" class="contact-card card-whatsapp tilt-card" onclick="umami.track('contact_whatsapp_click')">
                         <div class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
                         </div>
@@ -139,7 +191,7 @@
                     </a>
 
                     <!-- LinkedIn -->
-                    <a href="https://linkedin.com/in/amrsamiredris" target="_blank" rel="noopener noreferrer" class="contact-card card-linkedin" onclick="umami.track('contact_linkedin_click')">
+                    <a href="https://linkedin.com/in/amrsamiredris" target="_blank" rel="noopener noreferrer" class="contact-card card-linkedin tilt-card" onclick="umami.track('contact_linkedin_click')">
                         <div class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
                         </div>
@@ -159,7 +211,7 @@
         </footer>
     </div>
 
-    <!-- JS Link for animations -->
+    <!-- JS Link for animations & scroll triggers -->
     <script src="script.js"></script>
 </body>
 </html>
