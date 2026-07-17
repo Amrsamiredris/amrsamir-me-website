@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual CMS Editor | Amr Samir Edris</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f3a20f%22 stroke=%22%23121212%22 stroke-width=%228%22/><text y=%22.8em%22 x=%22.15em%22 font-size=%2280%22 font-family=%22sans-serif%22 font-weight=%22bold%22 fill=%22%23121212%22>A</text></svg>">
+
+    <!-- Google Fonts: Quicksand & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lenis & GSAP -->
+    <script src="https://cdn.jsdelivr.net/npm/@lenis/lenis@1.1.13/dist/lenis.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/TextPlugin.min.js"></script>
+
+    <!-- CSS Link -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Custom Visual CMS Editor Styles -->
+    <style>
+        .cms-top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            background-color: #121212;
+            color: #fffefb;
+            border-bottom: 3.5px solid #f3a20f;
+            z-index: 10000;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .cms-top-bar__left { display: flex; align-items: center; gap: 12px; }
+        .cms-badge-tag {
+            background-color: #f3a20f;
+            color: #121212;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 2px solid #121212;
+        }
+        .cms-queue-counter {
+            background-color: #f489a3;
+            color: #121212;
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 2px solid #fffefb;
+            font-size: 0.85rem;
+        }
+        .cms-btn {
+            background-color: #64ffda;
+            color: #121212;
+            border: 2.5px solid #121212;
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 2px 2px 0px #fffefb;
+        }
+        .cms-btn:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #fffefb; background-color: #f3a20f; }
+
+        /* Editable Element Highlighting */
+        .cms-editable {
+            position: relative;
+            cursor: pointer !important;
+            transition: outline 0.15s ease, transform 0.15s ease !important;
+        }
+        .cms-editable:hover {
+            outline: 3.5px dashed #f97028 !important;
+            outline-offset: 6px;
+        }
+        .cms-editable::before {
+            content: "✦ DOUBLE CLICK TO EDIT: " attr(data-cms-name);
+            position: absolute;
+            top: -28px;
+            left: 0;
+            background-color: #f97028;
+            color: #121212;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 900;
+            padding: 3px 10px;
+            border: 2px solid #121212;
+            border-radius: 6px;
+            box-shadow: 2px 2px 0px #121212;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            white-space: nowrap;
+        }
+        .cms-editable:hover::before {
+            opacity: 1;
+        }
+
+        /* Modal Box */
+        .cms-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(18, 18, 18, 0.75);
+            backdrop-filter: blur(5px);
+            z-index: 20000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .cms-modal {
+            background-color: #fffefb;
+            border: 4px solid #121212;
+            box-shadow: 10px 10px 0px #121212;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 560px;
+            width: 100%;
+            font-family: 'Quicksand', sans-serif;
+            color: #121212;
+        }
+        .cms-modal h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            border-bottom: 3px solid #121212;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+        .cms-modal-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #6e6e6e;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .cms-modal-target {
+            background-color: #f3ecd2;
+            border: 2px solid #121212;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            margin-bottom: 18px;
+            color: #121212;
+        }
+        .cms-modal-textarea {
+            width: 100%;
+            background-color: #f3ecd2;
+            border: 3px solid #121212;
+            border-radius: 12px;
+            padding: 14px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            min-height: 120px;
+            margin-bottom: 24px;
+            outline: none;
+            box-shadow: 3px 3px 0px #121212;
+        }
+        .cms-modal-textarea:focus {
+            background-color: #ffffff;
+            box-shadow: 5px 5px 0px #f3a20f;
+        }
+        .cms-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .cms-modal-submit {
+            background-color: #f3a20f;
+            color: #121212;
+            border: 3px solid #121212;
+            box-shadow: 4px 4px 0px #121212;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .cms-modal-submit:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #121212; background-color: #f97028; }
+        .cms-modal-cancel {
+            background-color: transparent;
+            color: #121212;
+            border: 2px solid #121212;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Toast Notification */
+        .cms-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #22c55e;
+            color: #121212;
+            border: 3px solid #121212;
+            box-shadow: 6px 6px 0px #121212;
+            border-radius: 16px;
+            padding: 18px 26px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.05rem;
+            z-index: 30000;
+            display: none;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body style="padding-top: 64px;">
+    <!-- Top CMS Mode Banner -->
+    <div class="cms-top-bar">
+        <div class="cms-top-bar__left">
+            <span class="cms-badge-tag">⚡ VISUAL CMS EDITOR</span>
+            <span>Double-click any highlighted element to instruct Antigravity</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <span class="cms-queue-counter" id="queueCount">Queue: 0 Pending</span>
+            <button class="cms-btn" onclick="viewQueueModal()">📋 View Queue</button>
+            <button class="cms-btn" style="background-color: #f489a3;" onclick="clearQueue()">🗑️ Clear Queue</button>
+        </div>
+    </div>
+
+    <!-- Fixed Day/Night Theme Switcher Button -->
+    <button id="themeToggle" class="theme-toggle-btn" style="top: 80px;" aria-label="Toggle Theme">
+        <span class="theme-icon" id="themeIcon">☾</span>
+        <span class="theme-text" id="themeLabel">NIGHT</span>
+    </button>
+
+    <!-- Background Floating Parallax Vectors -->
+    <div class="bg-decoration">
+        <div class="floating-shape shape-star shape-1" data-speed="0.15">
+            <svg viewBox="0 0 100 100" width="70" height="70"><polygon points="50,5 62,38 97,38 68,58 79,91 50,70 21,91 32,58 3,38 38,38" fill="#f489a3" stroke="#121212" stroke-width="4"/></svg>
+        </div>
+        <div class="floating-shape shape-bolt shape-2" data-speed="-0.22">
+            <svg viewBox="0 0 100 100" width="65" height="65"><polygon points="55,5 15,55 50,55 40,95 85,42 50,42" fill="#f3a20f" stroke="#121212" stroke-width="4.5"/></svg>
+        </div>
+        <div class="floating-shape shape-gear shape-3" data-speed="0.28">
+            <svg viewBox="0 0 100 100" width="80" height="80"><circle cx="50" cy="50" r="30" fill="#64ffda" stroke="#121212" stroke-width="4.5"/><circle cx="50" cy="50" r="12" fill="#f3ecd2" stroke="#121212" stroke-width="4.5"/><path d="M50 5 v12 M50 83 v12 M5 50 h12 M83 50 h12 M18 18 l8 8 M74 74 l8 8 M18 82 l8 -8 M74 26 l8 -8" stroke="#121212" stroke-width="6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="floating-shape shape-spark shape-4" data-speed="-0.18">
+            <svg viewBox="0 0 100 100" width="60" height="60"><polygon points="50,0 60,40 100,50 60,60 50,100 40,60 0,50 40,40" fill="#f97028" stroke="#121212" stroke-width="4"/></svg>
+        </div>
+        <div class="floating-shape shape-circle shape-5" data-speed="0.2">
+            <svg viewBox="0 0 100 100" width="50" height="50"><circle cx="50" cy="50" r="40" fill="#fffefb" stroke="#121212" stroke-width="5"/></svg>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <!-- Main Content Wrapper -->
+        <main class="content-wrapper">
+            
+            <!-- FlowFest Combo -->
+            <div class="builder-combo cms-editable" data-cms-name="Avatar & Speech Bubble (.builder-combo)" data-cms-file="index.html / script.js" id="builderCombo">
+                <div class="builder-avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="95" height="95">
+                        <rect x="15" y="25" width="90" height="80" rx="28" fill="#f3a20f" stroke="#121212" stroke-width="4.5"/>
+                        <rect x="5" y="50" width="10" height="24" rx="4" fill="#f489a3" stroke="#121212" stroke-width="4"/>
+                        <rect x="105" y="50" width="10" height="24" rx="4" fill="#f489a3" stroke="#121212" stroke-width="4"/>
+                        <path d="M60 25 V 8 M 60 8 m -8, 0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0" fill="#f97028" stroke="#121212" stroke-width="4.5"/>
+                        <rect x="28" y="45" width="64" height="24" rx="12" fill="#121212"/>
+                        <circle cx="45" cy="57" r="4" fill="#64ffda"/>
+                        <circle cx="75" cy="57" r="4" fill="#64ffda"/>
+                        <path d="M 45 85 Q 60 96 75 85" fill="none" stroke="#121212" stroke-width="4.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="chat-cloud" id="chatCloud">
+                    <p class="chat-cloud__p" id="chatText">Full site launching soon | Dubai, UAE</p>
+                    <div class="chat-tail"></div>
+                </div>
+            </div>
+
+            <!-- Status Badge -->
+            <div class="status-badge cms-editable" data-cms-name="Status Badge (.status-badge)" data-cms-file="index.html">
+                <span class="pulse-dot"></span>
+                <span class="status-text">COMING SOON | DUBAI, UAE</span>
+            </div>
+
+            <!-- Name Header -->
+            <h1 class="display-name cms-editable" data-cms-name="Display Name Header (.display-name)" data-cms-file="index.html">AMR SAMIR EDRIS</h1>
+
+            <!-- Tagline -->
+            <p class="tagline cms-editable" data-cms-name="Tagline (.tagline)" data-cms-file="index.html">Full spectrum Events Production & Digital Marketing | MENA</p>
+
+            <!-- Live Status Card -->
+            <div class="live-status-card tilt-card cms-editable" data-cms-name="Current Focus Live Card (.live-status-card)" data-cms-file="index.html">
+                <div class="live-header">
+                    <span class="live-indicator"></span>
+                    <span class="live-label">CURRENT FOCUS</span>
+                </div>
+                <p class="live-content">Currently project managing <strong>Sheikh Zayed Summer Festival</strong></p>
+            </div>
+
+            <!-- About Card -->
+            <div class="about-card tilt-card cms-editable" data-cms-name="About Card (.about-card)" data-cms-file="index.html">
+                <p class="about-text">
+                    Senior Project Manager & Builder delivering mega events, large scale government productions, and AI-enabled technical workflows across the Middle East.
+                </p>
+            </div>
+
+            <!-- CTA Container -->
+            <div class="cta-container cms-editable" data-cms-name="Download CV Button (.cta-button)" data-cms-file="index.html">
+                <a href="assets/cv.pdf" download="Amr_Samir_Edris_CV.pdf" class="cta-button" onclick="return false;">
+                    <span class="cta-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </span>
+                    <span class="cta-text">Download CV</span>
+                </a>
+            </div>
+
+            <!-- Press Kit Box -->
+            <div class="press-kit-box tilt-card cms-editable" data-cms-name="Executive Bio Press Kit Card (.press-kit-box)" data-cms-file="index.html / assets/">
+                <div class="press-badge">PRESS KIT & SPEAKER ASSETS</div>
+                <h3 class="press-heading">EXECUTIVE BIOGRAPHY</h3>
+                <p class="press-desc">1-page executive factsheet and bio for event organizers, media inquiries, and high-profile speaking engagements.</p>
+                <div class="press-actions">
+                    <a href="assets/executive_bio.html" target="_blank" class="press-btn" onclick="return false;">
+                        <span>View / Print Sheet (.HTML)</span>
+                    </a>
+                    <a href="assets/executive_bio.md" download="Amr_Samir_Edris_Executive_Bio.md" class="press-btn btn-secondary" onclick="return false;">
+                        <span>Download Bio (.MD)</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Ticker Banner -->
+            <div class="ticker-banner cms-editable" data-cms-name="Marquee Ticker Band (.ticker-banner)" data-cms-file="index.html / style.css">
+                <div class="ticker-track">
+                    <div class="ticker-item">✦ SENIOR PROJECT MANAGER</div>
+                    <div class="ticker-item">✦ MEGA EVENTS PRODUCTION</div>
+                    <div class="ticker-item">✦ AI ENGINEERING & AUTOMATION</div>
+                    <div class="ticker-item">✦ GOVERNMENT PRODUCTIONS</div>
+                    <div class="ticker-item">✦ DUBAI & MENA REGION</div>
+                    <div class="ticker-item">✦ STRATEGIC LEADERSHIP</div>
+                </div>
+            </div>
+
+            <!-- Capabilities Section -->
+            <section class="capabilities-section cms-editable" data-cms-name="Capabilities Section Grid (.capabilities-section)" data-cms-file="index.html">
+                <h2 class="section-title">CORE CAPABILITIES</h2>
+                <div class="capabilities-grid">
+                    <div class="cap-card tilt-card">
+                        <div class="cap-badge badge-mango">01 / EVENTS</div>
+                        <h3 class="cap-heading">Mega Productions</h3>
+                        <p class="cap-desc">Leading multidisciplinary teams to execute large-scale government & cultural productions across the region with flawless technical delivery.</p>
+                    </div>
+                    <div class="cap-card tilt-card">
+                        <div class="cap-badge badge-pink">02 / MARKETING</div>
+                        <h3 class="cap-heading">Digital Ecosystems</h3>
+                        <p class="cap-desc">Orchestrating full-funnel digital campaigns, data-driven engagement, and high-impact brand strategies tailored for diverse audiences.</p>
+                    </div>
+                    <div class="cap-card tilt-card">
+                        <div class="cap-badge badge-teal">03 / AI & TECH</div>
+                        <h3 class="cap-heading">AI Workflows</h3>
+                        <p class="cap-desc">Leveraging cutting-edge generative AI tools and automated engineering pipelines to supercharge project velocity and operational precision.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section class="contact-section cms-editable" data-cms-name="Connect Directly Contact Section (.contact-section)" data-cms-file="index.html">
+                <h2 class="section-title">CONNECT DIRECTLY</h2>
+                <div class="contact-grid">
+                    <a href="#" class="contact-card card-email tilt-card" onclick="return false;">
+                        <div class="icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Email Address</span>
+                            <span class="contact-value">amrsamiredris@gmail.com</span>
+                        </div>
+                    </a>
+                    <a href="#" class="contact-card card-whatsapp tilt-card" onclick="return false;">
+                        <div class="icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">WhatsApp Direct</span>
+                            <span class="contact-value">+971 54 219 1028</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="contact-form-box tilt-card">
+                    <h3 class="form-title">SEND A DIRECT MESSAGE</h3>
+                    <p class="form-subtitle">Fill out the fields below and the message goes instantly to my personal inbox.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer cms-editable" data-cms-name="Footer Socials & Copyright (.footer)" data-cms-file="index.html">
+            <p class="copyright">&copy; 2026 Amr Samir Edris. Crafted with precision & AI.</p>
+        </footer>
+    </div>
+
+    <!-- Modal Box for Adding Instruction -->
+    <div class="cms-modal-overlay" id="cmsModalOverlay">
+        <div class="cms-modal">
+            <h3>⚡ INSTRUCT ANTIGRAVITY</h3>
+            <span class="cms-modal-label">TARGET COMPONENT:</span>
+            <div class="cms-modal-target" id="modalTargetLabel">...</div>
+            
+            <span class="cms-modal-label">WHAT SHOULD ANTIGRAVITY EDIT OR BUILD?</span>
+            <textarea id="modalTextarea" class="cms-modal-textarea" placeholder="e.g. Change wording to highlight my regional events experience, change badge color to #f97028..."></textarea>
+            
+            <div class="cms-modal-actions">
+                <button class="cms-modal-cancel" onclick="closeModal()">Cancel</button>
+                <button class="cms-modal-submit" onclick="submitInstruction()">Save & Send to Antigravity</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="cms-toast" id="cmsToast">
+        <span>✅ Instruction Saved to Queue & Copied to Clipboard (`Cmd+C`)!</span>
+    </div>
+
+    <!-- Visual CMS Editor JS Logic -->
+    <script>
+        let currentTarget = "";
+        let currentFile = "";
+
+        // Attach double click listeners to all .cms-editable sections
+        document.querySelectorAll('.cms-editable').forEach((el) => {
+            el.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                
+                currentTarget = el.getAttribute('data-cms-name') || "Element";
+                currentFile = el.getAttribute('data-cms-file') || "index.html";
+                
+                document.getElementById('modalTargetLabel').textContent = `${currentTarget} [File: ${currentFile}]`;
+                document.getElementById('modalTextarea').value = "";
+                
+                document.getElementById('cmsModalOverlay').style.display = 'flex';
+                setTimeout(() => document.getElementById('modalTextarea').focus(), 100);
+            });
+        });
+
+        function closeModal() {
+            document.getElementById('cmsModalOverlay').style.display = 'none';
+        }
+
+        async function fetchQueueCount() {
+            try {
+                const res = await fetch('/api/cms/list');
+                if (res.ok) {
+                    const data = await res.json();
+                    const count = (data.pending_edits && data.pending_edits.length) ? data.pending_edits.length : 0;
+                    document.getElementById('queueCount').textContent = `Queue: ${count} Pending`;
+                }
+            } catch (err) {
+                // Not running via local Python server, running on static Vercel / file://
+                const localQueue = JSON.parse(localStorage.getItem('cms_local_queue') || '[]');
+                document.getElementById('queueCount').textContent = `Queue: ${localQueue.length} Pending (Local/Cloud)`;
+            }
+        }
+
+        async function submitInstruction() {
+            const text = document.getElementById('modalTextarea').value.trim();
+            if (!text) {
+                alert("Please enter what you want Antigravity to change!");
+                return;
+            }
+
+            const editPayload = {
+                target: currentTarget,
+                file: currentFile,
+                instruction: text
+            };
+
+            // 1. Attempt saving via Local Python Server /api/cms/add if active
+            try {
+                const res = await fetch('/api/cms/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(editPayload)
+                });
+                if (res.ok) {
+                    await fetchQueueCount();
+                }
+            } catch (err) {
+                // Save to browser localStorage fallback for static Vercel usage
+                const localQueue = JSON.parse(localStorage.getItem('cms_local_queue') || '[]');
+                localQueue.push({ ...editPayload, timestamp: new Date().toISOString() });
+                localStorage.setItem('cms_local_queue', JSON.stringify(localQueue));
+                fetchQueueCount();
+            }
+
+            // 2. Format structured XML tag & copy instantly to clipboard (`Cmd + C`)
+            const formattedPrompt = `<CMS_EDIT target="${currentTarget}" file="${currentFile}">\n${text}\n</CMS_EDIT>`;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(formattedPrompt);
+            }
+
+            closeModal();
+            showToast();
+        }
+
+        async function clearQueue() {
+            if (!confirm("Are you sure you want to empty the pending instructions queue?")) return;
+            try {
+                await fetch('/api/cms/clear', { method: 'POST' });
+            } catch (err) {}
+            localStorage.setItem('cms_local_queue', '[]');
+            fetchQueueCount();
+        }
+
+        function viewQueueModal() {
+            alert("To process queued edits, simply tell Antigravity in chat:\n\n\"Antigravity, process my CMS queue (cms_queue.json)\"\n\nOr press `Cmd + V` to paste your latest copied instruction directly into chat!");
+        }
+
+        function showToast() {
+            const toast = document.getElementById('cmsToast');
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 4500);
+        }
+
+        // Initialize queue counter on load
+        fetchQueueCount();
+    </script>
+</body>
+</html>
