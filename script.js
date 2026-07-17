@@ -1,203 +1,168 @@
+/**
+ * FlowFest-Inspired GSAP Animations & Speech Prompt Sequence
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('constellationCanvas');
-    const ctx = canvas.getContext('2d');
-    const body = document.body;
-
-    let particles = [];
-    let particleCount = 70;
-    const connectionDistance = 120;
-    
-    // Mouse interaction tracker
-    const mouse = {
-        x: null,
-        y: null,
-        active: false,
-        radius: 150
-    };
-
-    // Adapt particle count for mobile screens to guarantee high FPS performance
-    function initSettings() {
-        if (window.innerWidth < 768) {
-            particleCount = 35;
-        } else {
-            particleCount = 75;
-        }
+    // Register GSAP TextPlugin if available
+    if (typeof gsap !== 'undefined' && typeof TextPlugin !== 'undefined') {
+        gsap.registerPlugin(TextPlugin);
     }
 
-    // Set canvas dimensions
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        initParticles();
-    }
+    const loader = document.getElementById('loader');
+    const contentWrapper = document.querySelector('.content-wrapper');
+    const chatText = document.getElementById('chatText');
+    const builderAvatar = document.querySelector('.builder-avatar');
+    const builderCombo = document.getElementById('builderCombo');
 
-    // Particle representation
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            // Slow, professional float speeds
-            this.vx = (Math.random() - 0.5) * 0.35;
-            this.vy = (Math.random() - 0.5) * 0.35;
-            this.radius = Math.random() * 1.8 + 1; // 1px to 2.8px
-            this.baseAlpha = Math.random() * 0.35 + 0.15; // 0.15 to 0.5
-            this.alpha = this.baseAlpha;
-            // 70% teal, 30% white nodes
-            this.isTeal = Math.random() < 0.7;
-            this.color = this.isTeal ? '100, 255, 218' : '255, 255, 255';
+    const defaultText = "Full site launching soon | Dubai, UAE";
+    const hoverMessages = [
+        "Let's build something extraordinary together 🚀",
+        "Delivering large-scale productions & AI engineering ⚡",
+        "Feel free to download my CV below 👇",
+        "Welcome to my personal portal across the MENA region ✨"
+    ];
+
+    // Ensure initial states before animation starts
+    gsap.set(contentWrapper, { opacity: 0, y: 30 });
+    gsap.set(chatText, { text: "..." });
+
+    // Create Main Entry Timeline
+    const tl = gsap.timeline();
+
+    // 1. Fade out the Loading Screen
+    tl.to(loader, {
+        duration: 0.5,
+        opacity: 0,
+        delay: 0.6,
+        onComplete: () => {
+            if (loader) loader.style.display = 'none';
         }
+    });
 
-        update() {
-            // Magnetic drift towards mouse cursor
-            if (mouse.active && window.innerWidth >= 768) {
-                const dx = mouse.x - this.x;
-                const dy = mouse.y - this.y;
-                const dist = Math.hypot(dx, dy);
-                if (dist < mouse.radius) {
-                    // Soft attraction pull force
-                    const force = (mouse.radius - dist) / mouse.radius;
-                    this.x += (dx / dist) * force * 0.4;
-                    this.y += (dy / dist) * force * 0.4;
-                }
-            }
+    // 2. Reveal Main Content Container smoothly
+    tl.to(contentWrapper, {
+        duration: 0.7,
+        opacity: 1,
+        y: 0,
+        ease: "power3.out"
+    }, "-=0.2");
 
-            // Normal floating movement
-            this.x += this.vx;
-            this.y += this.vy;
+    // 3. FlowFest Speech Bubble Typing Sequence
+    tl.to(chatText, {
+        duration: 0.45,
+        text: "Hi Friends!",
+        ease: "none",
+        delay: 0.2
+    });
 
-            // Bounce off boundary edges with velocity reversal
-            if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
-            if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
+    tl.to(chatText, {
+        duration: 0.25,
+        text: "...",
+        ease: "none",
+        delay: 1.2
+    });
 
-            // Clamp positions to avoid sticking outside screens
-            if (this.x < 0) this.x = 0;
-            if (this.x > canvas.width) this.x = canvas.width;
-            if (this.y < 0) this.y = 0;
-            if (this.y > canvas.height) this.y = canvas.height;
-        }
+    tl.to(chatText, {
+        duration: 0.65,
+        text: "We are building something unique...",
+        ease: "none",
+        delay: 0.2
+    });
 
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            // Draw particle with subtle glow on gold ones
-            ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
-            if (this.isTeal) {
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = `rgba(${this.color}, 0.5)`;
-            }
-            ctx.fill();
-            ctx.shadowBlur = 0; // Reset shadow for line performance
-        }
-    }
+    tl.to(chatText, {
+        duration: 0.25,
+        text: "...",
+        ease: "none",
+        delay: 1.2
+    });
 
-    function initParticles() {
-        particles = [];
-        initSettings();
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-    }
+    tl.to(chatText, {
+        duration: 0.75,
+        text: defaultText,
+        ease: "none",
+        delay: 0.2
+    });
 
-    // Connect particles near each other
-    function drawConnections() {
-        for (let i = 0; i < particles.length; i++) {
-            const p1 = particles[i];
+    // 4. Subtle, continuous floating animation on the Builder Avatar
+    gsap.to(builderAvatar, {
+        y: -8,
+        duration: 2.2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
+    });
 
-            // Connect particles to mouse cursor
-            if (mouse.active && window.innerWidth >= 768) {
-                const dx = mouse.x - p1.x;
-                const dy = mouse.y - p1.y;
-                const dist = Math.hypot(dx, dy);
-                if (dist < mouse.radius) {
-                    const lineOpacity = (1 - dist / mouse.radius) * 0.15;
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(mouse.x, mouse.y);
-                    ctx.strokeStyle = `rgba(100, 255, 218, ${lineOpacity})`;
-                    ctx.lineWidth = 0.8;
-                    ctx.stroke();
-                }
-            }
+    // 5. Interactive Hover & Tap Reactions
+    let isInteracting = false;
+    let hoverTimeout = null;
 
-            for (let j = i + 1; j < particles.length; j++) {
-                const p2 = particles[j];
-                const dx = p1.x - p2.x;
-                const dy = p1.y - p2.y;
-                const dist = Math.hypot(dx, dy);
-
-                if (dist < connectionDistance) {
-                    const lineOpacity = (1 - dist / connectionDistance) * 0.18;
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    
-                    // Connection line color blends
-                    if (p1.isTeal && p2.isTeal) {
-                        ctx.strokeStyle = `rgba(100, 255, 218, ${lineOpacity})`;
-                    } else {
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${lineOpacity * 0.6})`;
-                    }
-                    
-                    ctx.lineWidth = 0.5;
-                    ctx.stroke();
-                }
-            }
-        }
-    }
-
-    // Animation Loop
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function showRandomMessage() {
+        if (isInteracting) return;
+        isInteracting = true;
         
-        // Draw constellation lines first, then nodes on top
-        drawConnections();
-        
-        particles.forEach(p => {
-            p.update();
-            p.draw();
+        const randomIndex = Math.floor(Math.random() * hoverMessages.length);
+        const selectedMsg = hoverMessages[randomIndex];
+
+        gsap.killTweensOf(chatText);
+        gsap.to(chatText, {
+            duration: 0.2,
+            text: "...",
+            ease: "none",
+            onComplete: () => {
+                gsap.to(chatText, {
+                    duration: 0.5,
+                    text: selectedMsg,
+                    ease: "none"
+                });
+            }
+        });
+    }
+
+    function revertToDefault() {
+        isInteracting = false;
+        gsap.killTweensOf(chatText);
+        gsap.to(chatText, {
+            duration: 0.2,
+            text: "...",
+            ease: "none",
+            onComplete: () => {
+                gsap.to(chatText, {
+                    duration: 0.5,
+                    text: defaultText,
+                    ease: "none"
+                });
+            }
+        });
+    }
+
+    if (builderCombo) {
+        // Desktop Hover
+        builderCombo.addEventListener('mouseenter', () => {
+            // Only trigger if timeline has finished
+            if (!tl.isActive()) {
+                showRandomMessage();
+            }
         });
 
-        requestAnimationFrame(animate);
+        builderCombo.addEventListener('mouseleave', () => {
+            if (!tl.isActive()) {
+                revertToDefault();
+            }
+        });
+
+        // Mobile Tap / Click
+        builderCombo.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!tl.isActive()) {
+                showRandomMessage();
+            }
+        });
     }
 
-    // Listeners for mouse tracking
-    window.addEventListener('mousemove', (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-        mouse.active = true;
-        
-        // Update glow background position too (original feature fallback)
-        const xPercent = (e.clientX / window.innerWidth) * 100;
-        const yPercent = (e.clientY / window.innerHeight) * 100;
-        const glowBg = document.getElementById('glowBg');
-        if (glowBg) {
-            glowBg.style.setProperty('--glow-x', `${xPercent}%`);
-            glowBg.style.setProperty('--glow-y', `${yPercent}%`);
-        }
-        if (!body.classList.contains('mouse-active')) {
-            body.classList.add('mouse-active');
+    // Tap outside on mobile reverts text
+    document.addEventListener('click', (e) => {
+        if (builderCombo && !builderCombo.contains(e.target) && !tl.isActive() && isInteracting) {
+            revertToDefault();
         }
     });
-
-    window.addEventListener('mouseleave', () => {
-        mouse.active = false;
-        body.classList.remove('mouse-active');
-        const glowBg = document.getElementById('glowBg');
-        if (glowBg) {
-            glowBg.style.removeProperty('--glow-x');
-            glowBg.style.removeProperty('--glow-y');
-        }
-    });
-
-    // Handle orientation and resizing
-    window.addEventListener('resize', () => {
-        clearTimeout(window.resizeTimer);
-        window.resizeTimer = setTimeout(() => {
-            resizeCanvas();
-        }, 150);
-    });
-
-    // Start constellation rendering
-    resizeCanvas();
-    animate();
 });
