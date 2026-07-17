@@ -206,7 +206,7 @@ html.lenis, html.lenis body {
     margin: 0 auto;
     width: 100%;
     text-align: center;
-    opacity: 0; /* Hidden until GSAP reveals */
+    opacity: 1; /* Always visible by default */
 }
 
 /* ==========================================================================

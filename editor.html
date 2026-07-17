@@ -24,6 +24,11 @@
 
     <!-- Custom Visual CMS Editor Styles -->
     <style>
+        .content-wrapper {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: none !important;
+        }
         .cms-top-bar {
             position: fixed;
             top: 0;
@@ -272,8 +277,8 @@
     </div>
     
     <div class="main-container">
-        <!-- Main Content Wrapper -->
-        <main class="content-wrapper">
+        <!-- Main Content Wrapper (Guaranteed Visible) -->
+        <main class="content-wrapper" style="opacity: 1 !important; visibility: visible !important;">
             
             <!-- FlowFest Combo -->
             <div class="builder-combo cms-editable" data-cms-name="Avatar & Speech Bubble (.builder-combo)" data-cms-file="index.html / script.js" id="builderCombo">
@@ -442,12 +447,14 @@
         <span>✅ Instruction Saved to Queue & Copied to Clipboard (`Cmd+C`)!</span>
     </div>
 
+    <!-- JS Link -->
+    <script src="script.js"></script>
+
     <!-- Visual CMS Editor JS Logic -->
     <script>
         let currentTarget = "";
         let currentFile = "";
 
-        // Attach double click listeners to all .cms-editable sections
         document.querySelectorAll('.cms-editable').forEach((el) => {
             el.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
@@ -477,7 +484,6 @@
                     document.getElementById('queueCount').textContent = `Queue: ${count} Pending`;
                 }
             } catch (err) {
-                // Not running via local Python server, running on static Vercel / file://
                 const localQueue = JSON.parse(localStorage.getItem('cms_local_queue') || '[]');
                 document.getElementById('queueCount').textContent = `Queue: ${localQueue.length} Pending (Local/Cloud)`;
             }
@@ -496,7 +502,6 @@
                 instruction: text
             };
 
-            // 1. Attempt saving via Local Python Server /api/cms/add if active
             try {
                 const res = await fetch('/api/cms/add', {
                     method: 'POST',
@@ -507,14 +512,12 @@
                     await fetchQueueCount();
                 }
             } catch (err) {
-                // Save to browser localStorage fallback for static Vercel usage
                 const localQueue = JSON.parse(localStorage.getItem('cms_local_queue') || '[]');
                 localQueue.push({ ...editPayload, timestamp: new Date().toISOString() });
                 localStorage.setItem('cms_local_queue', JSON.stringify(localQueue));
                 fetchQueueCount();
             }
 
-            // 2. Format structured XML tag & copy instantly to clipboard (`Cmd + C`)
             const formattedPrompt = `<CMS_EDIT target="${currentTarget}" file="${currentFile}">\n${text}\n</CMS_EDIT>`;
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(formattedPrompt);
@@ -543,7 +546,6 @@
             setTimeout(() => { toast.style.display = 'none'; }, 4500);
         }
 
-        // Initialize queue counter on load
         fetchQueueCount();
     </script>
 </body>
