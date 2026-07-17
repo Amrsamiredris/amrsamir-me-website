@@ -9,7 +9,44 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
     }
 
+    // ==========================================================================
+    // Day / Night Theme Switcher Logic
+    // ==========================================================================
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+
+    function applyTheme(isDark) {
+        if (isDark) {
+            document.documentElement.classList.add('dark-theme');
+            document.body.classList.add('dark-theme');
+            if (themeIcon) themeIcon.textContent = '☀';
+            if (themeLabel) themeLabel.textContent = 'DAY';
+        } else {
+            document.documentElement.classList.remove('dark-theme');
+            document.body.classList.remove('dark-theme');
+            if (themeIcon) themeIcon.textContent = '☾';
+            if (themeLabel) themeLabel.textContent = 'NIGHT';
+        }
+    }
+
+    // Check saved localStorage preference or default to day
+    const savedTheme = localStorage.getItem('site_theme');
+    if (savedTheme === 'dark') {
+        applyTheme(true);
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const isCurrentlyDark = document.documentElement.classList.contains('dark-theme');
+            applyTheme(!isCurrentlyDark);
+            localStorage.setItem('site_theme', !isCurrentlyDark ? 'dark' : 'light');
+        });
+    }
+
+    // ==========================================================================
     // Initialize Lenis Smooth Scrolling
+    // ==========================================================================
     let lenis;
     if (typeof Lenis !== 'undefined') {
         lenis = new Lenis({
@@ -57,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         delay: 0.6,
         onComplete: () => {
             if (loader) loader.style.display = 'none';
+            if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
         }
     });
 
@@ -224,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================================================
-    // GSAP ScrollTrigger Staggered Reveals
+    // GSAP ScrollTrigger Staggered Reveals (With clearProps for Mobile robustness)
     // ==========================================================================
     if (typeof ScrollTrigger !== 'undefined') {
         // Capabilities Cards Reveal
@@ -233,14 +271,17 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.from(capCards, {
                 scrollTrigger: {
                     trigger: '.capabilities-section',
-                    start: 'top 82%',
+                    start: 'top 85%',
                     toggleActions: 'play none none none'
                 },
-                y: 50,
+                y: 40,
                 opacity: 0,
-                duration: 0.75,
+                duration: 0.6,
                 stagger: 0.15,
-                ease: 'back.out(1.5)'
+                ease: 'back.out(1.4)',
+                onComplete: () => {
+                    gsap.set(capCards, { clearProps: "transform,opacity" });
+                }
             });
         }
 
@@ -250,16 +291,24 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.from(contactCards, {
                 scrollTrigger: {
                     trigger: '.contact-section',
-                    start: 'top 85%',
+                    start: 'top 92%',
                     toggleActions: 'play none none none'
                 },
-                y: 40,
+                y: 35,
                 opacity: 0,
-                duration: 0.65,
+                duration: 0.6,
                 stagger: 0.12,
-                ease: 'back.out(1.4)'
+                ease: 'back.out(1.4)',
+                onComplete: () => {
+                    gsap.set(contactCards, { clearProps: "transform,opacity" });
+                }
             });
         }
+
+        // Refresh triggers on resize for clean mobile display
+        window.addEventListener('resize', () => {
+            ScrollTrigger.refresh();
+        });
     }
 
     // ==========================================================================
