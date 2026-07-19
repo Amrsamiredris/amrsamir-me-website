@@ -422,54 +422,273 @@
         </footer>
     </div>
 
-    <!-- Modal Box for Adding Instruction -->
+    <!-- Visual CMS Modal Instruction & Live WYSIWYG Bridge -->
     <div class="cms-modal-overlay" id="cmsModalOverlay">
-        <div class="cms-modal">
-            <h3>⚡ INSTRUCT ANTIGRAVITY</h3>
-            <span class="cms-modal-label">TARGET COMPONENT:</span>
+        <div class="cms-modal" style="max-width: 620px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div class="cms-modal-title">⚡ VISUAL CMS EDITOR</div>
+                <button onclick="closeModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--border-color);">✕</button>
+            </div>
             <div class="cms-modal-target" id="modalTargetLabel">...</div>
             
-            <span class="cms-modal-label">WHAT SHOULD ANTIGRAVITY EDIT OR BUILD?</span>
-            <textarea id="modalTextarea" class="cms-modal-textarea" placeholder="e.g. Change wording to highlight my regional events experience, change badge color to #f97028..."></textarea>
-            
-            <div class="cms-modal-actions">
-                <button class="cms-modal-cancel" onclick="closeModal()">Cancel</button>
-                <button class="cms-modal-submit" onclick="submitInstruction()">Save & Send to Antigravity</button>
+            <!-- Mode Tabs -->
+            <div style="display: flex; gap: 10px; margin-bottom: 16px; border-bottom: 3px solid var(--border-color); padding-bottom: 12px;">
+                <button class="cms-tab-btn active" id="tabTextBtn" onclick="switchModalTab('text')">✏️ Edit Text WYSIWYG</button>
+                <button class="cms-tab-btn" id="tabAiBtn" onclick="switchModalTab('ai')">🤖 AI Design Instruction</button>
+            </div>
+
+            <!-- Tab 1: On-The-Spot WYSIWYG Text Editor -->
+            <div id="tabTextPanel">
+                <span class="cms-modal-label">LIVE TEXT CONTENT (TYPES DIRECTLY ONTO THE PAGE!):</span>
+                <textarea id="modalLiveText" class="cms-modal-textarea" style="height: 120px;" placeholder="Type here to edit exact wording..."></textarea>
+                <div style="font-size: 0.8rem; font-weight: 700; color: #10b981; margin-top: -8px; margin-bottom: 14px;">
+                    👁️ Notice: As you type in the box above, the website behind this window updates in real-time!
+                </div>
+                <div class="cms-modal-actions" style="justify-content: space-between; align-items: center;">
+                    <button class="cms-modal-cancel" style="background-color: var(--accent-yellow);" onclick="enableInlineEditingOnPage()">✨ Type Directly On Page</button>
+                    <div>
+                        <button class="cms-modal-cancel" onclick="closeModal()">Cancel</button>
+                        <button class="cms-modal-submit" onclick="submitTextEdit()">Save Text & Queue</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: AI Code & Design Instruction -->
+            <div id="tabAiPanel" style="display: none;">
+                <span class="cms-modal-label">WHAT DESIGN OR CODE SHOULD ANTIGRAVITY BUILD?</span>
+                <textarea id="modalTextarea" class="cms-modal-textarea" style="height: 120px;" placeholder="e.g. Change badge color to #f97028, make this section two columns, add an animation..."></textarea>
+                <div class="cms-modal-actions">
+                    <button class="cms-modal-cancel" onclick="closeModal()">Cancel</button>
+                    <button class="cms-modal-submit" onclick="submitInstruction()">Save & Send to Antigravity</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Floating Inline Editing Bar (Appears when user clicks 'Type Directly On Page') -->
+    <div id="inlineEditBar" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:10000; background-color:var(--card-bg); border:4px solid var(--border-color); box-shadow:0 6px 0px var(--border-color); border-radius:30px; padding:12px 24px; align-items:center; gap:16px;">
+        <span style="font-family:var(--font-display); font-weight:900; font-size:0.95rem; color:#f97028;">✏️ INLINE EDIT MODE ACTIVE — Click any text directly on the page and start typing!</span>
+        <button onclick="saveAndFinishInlineEditing()" style="background-color:#10b981; border:3px solid var(--border-color); border-radius:20px; padding:8px 18px; font-family:var(--font-display); font-weight:900; color:#fffefb; cursor:pointer; box-shadow:2px 2px 0px var(--border-color);">✅ Save Inline Edits</button>
+        <button onclick="cancelInlineEditing()" style="background-color:#f489a3; border:3px solid var(--border-color); border-radius:20px; padding:8px 14px; font-family:var(--font-display); font-weight:900; color:var(--border-color); cursor:pointer;">✕ Cancel</button>
+    </div>
+
     <!-- Toast Notification -->
     <div class="cms-toast" id="cmsToast">
-        <span>✅ Instruction Saved to Queue & Copied to Clipboard (`Cmd+C`)!</span>
+        <span id="toastMsg">✅ Instruction Saved to Queue & Copied (`Cmd+C`)!</span>
     </div>
 
     <!-- JS Link -->
     <script src="script.js"></script>
 
-    <!-- Visual CMS Editor JS Logic -->
+    <!-- Visual CMS & On-The-Spot WYSIWYG Editor JS Logic -->
     <script>
         let currentTarget = "";
         let currentFile = "";
+        let currentElement = null;
+        let originalTextBeforeEdit = "";
+        let currentTab = "text";
+
+        // Style for Tab Buttons
+        const tabStyles = `
+            <style>
+                .cms-tab-btn {
+                    background: var(--bg-color);
+                    border: 2.5px solid var(--border-color);
+                    border-radius: 10px;
+                    padding: 8px 16px;
+                    font-family: var(--font-display);
+                    font-weight: 800;
+                    font-size: 0.9rem;
+                    color: var(--border-color);
+                    cursor: pointer;
+                    transition: all 0.15s ease;
+                }
+                .cms-tab-btn.active {
+                    background: #f97028;
+                    color: #fffefb;
+                    box-shadow: 2px 2px 0px var(--border-color);
+                }
+                .cms-editable.inline-editing-active {
+                    outline: 4px dashed #10b981 !important;
+                    outline-offset: 8px !important;
+                    background-color: rgba(16, 185, 129, 0.08) !important;
+                }
+            </style>
+        `;
+        document.head.insertAdjacentHTML('beforeend', tabStyles);
 
         document.querySelectorAll('.cms-editable').forEach((el) => {
             el.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
                 e.preventDefault();
                 
+                currentElement = el;
                 currentTarget = el.getAttribute('data-cms-name') || "Element";
                 currentFile = el.getAttribute('data-cms-file') || "index.html";
+                originalTextBeforeEdit = el.innerText.trim();
                 
                 document.getElementById('modalTargetLabel').textContent = `${currentTarget} [File: ${currentFile}]`;
+                document.getElementById('modalLiveText').value = originalTextBeforeEdit;
                 document.getElementById('modalTextarea').value = "";
                 
+                switchModalTab('text');
                 document.getElementById('cmsModalOverlay').style.display = 'flex';
-                setTimeout(() => document.getElementById('modalTextarea').focus(), 100);
+                setTimeout(() => document.getElementById('modalLiveText').focus(), 100);
             });
         });
 
+        // Live Preview as User Types in the Modal Box!
+        document.getElementById('modalLiveText').addEventListener('input', (e) => {
+            if (currentElement) {
+                // If it's a simple text element or card with p, update the text live
+                const pTag = currentElement.querySelector('p, h1, h2, h3, .status-text') || currentElement;
+                if (pTag) {
+                    pTag.innerText = e.target.value;
+                }
+            }
+        });
+
+        function switchModalTab(tab) {
+            currentTab = tab;
+            const textBtn = document.getElementById('tabTextBtn');
+            const aiBtn = document.getElementById('tabAiBtn');
+            const textPanel = document.getElementById('tabTextPanel');
+            const aiPanel = document.getElementById('tabAiPanel');
+
+            if (tab === 'text') {
+                textBtn.classList.add('active');
+                aiBtn.classList.remove('active');
+                textPanel.style.display = 'block';
+                aiPanel.style.display = 'none';
+            } else {
+                aiBtn.classList.add('active');
+                textBtn.classList.remove('active');
+                aiPanel.style.display = 'block';
+                textPanel.style.display = 'none';
+            }
+        }
+
         function closeModal() {
+            // Revert live text if user cancelled without saving
+            if (currentElement && originalTextBeforeEdit !== "") {
+                const pTag = currentElement.querySelector('p, h1, h2, h3, .status-text') || currentElement;
+                if (pTag && document.getElementById('cmsModalOverlay').style.display !== 'none') {
+                    pTag.innerText = originalTextBeforeEdit;
+                }
+            }
             document.getElementById('cmsModalOverlay').style.display = 'none';
+        }
+
+        function enableInlineEditingOnPage() {
+            closeModal();
+            document.getElementById('inlineEditBar').style.display = 'flex';
+            
+            document.querySelectorAll('.cms-editable').forEach(el => {
+                el.setAttribute('contenteditable', 'true');
+                el.classList.add('inline-editing-active');
+            });
+
+            if (currentElement) {
+                currentElement.focus();
+            }
+        }
+
+        function cancelInlineEditing() {
+            document.getElementById('inlineEditBar').style.display = 'none';
+            document.querySelectorAll('.cms-editable').forEach(el => {
+                el.removeAttribute('contenteditable');
+                el.classList.remove('inline-editing-active');
+            });
+            window.location.reload(); // Restore original texts
+        }
+
+        async function saveAndFinishInlineEditing() {
+            document.getElementById('inlineEditBar').style.display = 'none';
+            
+            let allInlineEditsPrompt = "Here are the exact live inline text edits made on the page:\n\n";
+            document.querySelectorAll('.cms-editable').forEach(el => {
+                el.removeAttribute('contenteditable');
+                el.classList.remove('inline-editing-active');
+                const name = el.getAttribute('data-cms-name') || "Element";
+                const file = el.getAttribute('data-cms-file') || "index.html";
+                const newContent = el.innerText.trim();
+                allInlineEditsPrompt += `<CMS_INLINE_TEXT target="${name}" file="${file}">\n${newContent}\n</CMS_INLINE_TEXT>\n\n`;
+            });
+
+            const editPayload = {
+                type: "INLINE_TEXT_BATCH",
+                target: "Multiple Elements On Page",
+                file: "index.html",
+                instruction: allInlineEditsPrompt
+            };
+
+            await sendPayloadToQueue(editPayload, allInlineEditsPrompt, "✅ All Inline Text Edits Saved to Queue & Copied!");
+        }
+
+        async function submitTextEdit() {
+            const newText = document.getElementById('modalLiveText').value.trim();
+            if (!newText) {
+                alert("Please enter the new text!");
+                return;
+            }
+
+            const editPayload = {
+                type: "WYSIWYG_TEXT_UPDATE",
+                target: currentTarget,
+                file: currentFile,
+                old_text: originalTextBeforeEdit,
+                new_text: newText,
+                instruction: `Update exact wording of "${currentTarget}" from "${originalTextBeforeEdit}" to: "${newText}"`
+            };
+
+            const promptTag = `<CMS_TEXT_EDIT target="${currentTarget}" file="${currentFile}">\nNEW EXACT TEXT: ${newText}\n</CMS_TEXT_EDIT>`;
+            await sendPayloadToQueue(editPayload, promptTag, `✅ Text Update for "${currentTarget}" Saved & Copied!`);
+            
+            // Keep the new text visible on the live page right now
+            originalTextBeforeEdit = newText;
+            document.getElementById('cmsModalOverlay').style.display = 'none';
+        }
+
+        async function submitInstruction() {
+            const text = document.getElementById('modalTextarea').value.trim();
+            if (!text) {
+                alert("Please enter what you want Antigravity to change!");
+                return;
+            }
+
+            const editPayload = {
+                type: "AI_DESIGN_INSTRUCTION",
+                target: currentTarget,
+                file: currentFile,
+                instruction: text
+            };
+
+            const formattedPrompt = `<CMS_EDIT target="${currentTarget}" file="${currentFile}">\n${text}\n</CMS_EDIT>`;
+            await sendPayloadToQueue(editPayload, formattedPrompt, `✅ Instruction for "${currentTarget}" Saved & Copied!`);
+            closeModal();
+        }
+
+        async function sendPayloadToQueue(payload, clipboardText, toastMessage) {
+            try {
+                const res = await fetch('/api/cms/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    await fetchQueueCount();
+                }
+            } catch (err) {
+                const localQueue = JSON.parse(localStorage.getItem('cms_local_queue') || '[]');
+                localQueue.push({ ...payload, timestamp: new Date().toISOString() });
+                localStorage.setItem('cms_local_queue', JSON.stringify(localQueue));
+                fetchQueueCount();
+            }
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(clipboardText);
+            }
+            showToast(toastMessage);
         }
 
         async function fetchQueueCount() {
@@ -486,44 +705,6 @@
             }
         }
 
-        async function submitInstruction() {
-            const text = document.getElementById('modalTextarea').value.trim();
-            if (!text) {
-                alert("Please enter what you want Antigravity to change!");
-                return;
-            }
-
-            const editPayload = {
-                target: currentTarget,
-                file: currentFile,
-                instruction: text
-            };
-
-            try {
-                const res = await fetch('/api/cms/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(editPayload)
-                });
-                if (res.ok) {
-                    await fetchQueueCount();
-                }
-            } catch (err) {
-                const localQueue = JSON.parse(localStorage.getItem('cms_local_queue') || '[]');
-                localQueue.push({ ...editPayload, timestamp: new Date().toISOString() });
-                localStorage.setItem('cms_local_queue', JSON.stringify(localQueue));
-                fetchQueueCount();
-            }
-
-            const formattedPrompt = `<CMS_EDIT target="${currentTarget}" file="${currentFile}">\n${text}\n</CMS_EDIT>`;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(formattedPrompt);
-            }
-
-            closeModal();
-            showToast();
-        }
-
         async function clearQueue() {
             if (!confirm("Are you sure you want to empty the pending instructions queue?")) return;
             try {
@@ -537,13 +718,19 @@
             alert("To process queued edits, simply tell Antigravity in chat:\n\n\"Antigravity, process my CMS queue (cms_queue.json)\"\n\nOr press `Cmd + V` to paste your latest copied instruction directly into chat!");
         }
 
-        function showToast() {
+        function showToast(customMsg) {
             const toast = document.getElementById('cmsToast');
+            if (customMsg) {
+                document.getElementById('toastMsg').textContent = customMsg;
+            }
             toast.style.display = 'flex';
             setTimeout(() => { toast.style.display = 'none'; }, 4500);
         }
 
-        fetchQueueCount();
+        // Initial count fetch on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchQueueCount();
+        });
     </script>
 </body>
 </html>
