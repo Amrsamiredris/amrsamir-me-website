@@ -241,6 +241,7 @@
             <span>Double-click any highlighted element to instruct Antigravity</span>
         </div>
         <div style="display: flex; align-items: center; gap: 14px;">
+            <button class="cms-btn" style="background-color: #10b981; color: #fffefb; border-color: var(--border-color); box-shadow: 2px 2px 0px var(--border-color);" onclick="syncLiveContentToLaunchingSite(true)">🚀 Publish Live To Launching Site</button>
             <span class="cms-queue-counter" id="queueCount">Queue: 0 Pending</span>
             <button class="cms-btn" onclick="viewQueueModal()">📋 View Queue</button>
             <button class="cms-btn" style="background-color: #f489a3;" onclick="clearQueue()">🗑️ Clear Queue</button>
@@ -602,6 +603,33 @@
             window.location.reload(); // Restore original texts
         }
 
+        async function syncLiveContentToLaunchingSite(showToastMsg = true) {
+            const liveMap = {
+                displayName: document.querySelector('.display-name')?.innerText?.trim() || "AMR SAMIR EDRIS",
+                statusText: document.querySelector('.status-text')?.innerText?.trim() || "COMING SOON",
+                subbanner: document.querySelector('.flowfest-subbanner')?.innerText?.trim() || "Events & Digital Marketing is back.",
+                tagline: document.querySelector('.tagline')?.innerText?.trim() || "Full spectrum Events Production & Digital Marketing | MENA",
+                currentFocus: document.querySelector('.live-content')?.innerHTML?.trim() || "Currently project managing <strong>Sheikh Zayed Summer Festival</strong>",
+                aboutText: document.querySelector('.about-text')?.innerText?.trim() || "",
+                speechBubble: document.getElementById('chatText')?.innerText?.trim() || "Full site coming soon ✦ Designing integrated experiences",
+                ctaButton: document.querySelector('.cta-text')?.innerText?.trim() || "Download CV"
+            };
+
+            localStorage.setItem('amr_live_content', JSON.stringify(liveMap));
+
+            try {
+                await fetch('/api/content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(liveMap)
+                });
+            } catch (err) {}
+
+            if (showToastMsg) {
+                showToast("🚀 Live Content Published! Your main launching website (index.html) is now updated!");
+            }
+        }
+
         async function saveAndFinishInlineEditing() {
             document.getElementById('inlineEditBar').style.display = 'none';
             
@@ -622,7 +650,8 @@
                 instruction: allInlineEditsPrompt
             };
 
-            await sendPayloadToQueue(editPayload, allInlineEditsPrompt, "✅ All Inline Text Edits Saved to Queue & Copied!");
+            await sendPayloadToQueue(editPayload, allInlineEditsPrompt, "✅ All Inline Text Edits Saved & Published to Live Site!");
+            await syncLiveContentToLaunchingSite(false);
         }
 
         async function submitTextEdit() {
@@ -642,11 +671,11 @@
             };
 
             const promptTag = `<CMS_TEXT_EDIT target="${currentTarget}" file="${currentFile}">\nNEW EXACT TEXT: ${newText}\n</CMS_TEXT_EDIT>`;
-            await sendPayloadToQueue(editPayload, promptTag, `✅ Text Update for "${currentTarget}" Saved & Copied!`);
+            await sendPayloadToQueue(editPayload, promptTag, `✅ Text Update Saved & Published directly to Live Site!`);
             
-            // Keep the new text visible on the live page right now
             originalTextBeforeEdit = newText;
             document.getElementById('cmsModalOverlay').style.display = 'none';
+            await syncLiveContentToLaunchingSite(false);
         }
 
         async function submitInstruction() {

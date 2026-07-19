@@ -11,7 +11,75 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================================================
-    // Real-Time Sun Globe Eye Pupil Mouse-Tracking Physics
+    // Real-Time Direct CMS Content Sync (Connects editor.html directly to index.html)
+    // ==========================================================================
+    async function applyLiveContentSync(customData = null) {
+        let content = customData;
+        if (!content) {
+            try {
+                const localStr = localStorage.getItem('amr_live_content');
+                if (localStr) content = JSON.parse(localStr);
+            } catch (err) {}
+        }
+
+        if (!content) {
+            try {
+                const res = await fetch('/api/content');
+                if (res.ok) {
+                    const payload = await res.json();
+                    if (payload && payload.data && Object.keys(payload.data).length > 0) {
+                        content = payload.data;
+                    }
+                }
+            } catch (err) {
+                try {
+                    const fallbackRes = await fetch('/content.json');
+                    if (fallbackRes.ok) content = await fallbackRes.json();
+                } catch (e) {}
+            }
+        }
+
+        if (!content) return;
+
+        if (content.displayName) {
+            document.querySelectorAll('.display-name').forEach(el => el.innerText = content.displayName);
+        }
+        if (content.statusText) {
+            document.querySelectorAll('.status-text').forEach(el => el.innerText = content.statusText);
+        }
+        if (content.subbanner) {
+            document.querySelectorAll('.flowfest-subbanner').forEach(el => el.innerText = content.subbanner);
+        }
+        if (content.tagline) {
+            document.querySelectorAll('.tagline').forEach(el => el.innerText = content.tagline);
+        }
+        if (content.currentFocus) {
+            document.querySelectorAll('.live-content').forEach(el => el.innerHTML = content.currentFocus);
+        }
+        if (content.aboutText) {
+            document.querySelectorAll('.about-text').forEach(el => el.innerText = content.aboutText);
+        }
+        if (content.speechBubble) {
+            const chatBox = document.getElementById('chatText');
+            if (chatBox) chatBox.innerText = content.speechBubble;
+        }
+        if (content.ctaButton) {
+            document.querySelectorAll('.cta-text').forEach(el => el.innerText = content.ctaButton);
+        }
+    }
+
+    // Run sync right now on page load
+    applyLiveContentSync();
+
+    // Listen across open tabs so editing in editor.html updates index.html in real-time
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'amr_live_content' && e.newValue) {
+            try { applyLiveContentSync(JSON.parse(e.newValue)); } catch (err) {}
+        }
+    });
+
+    // ==========================================================================
+    // Real-Time Robot Eye Pupil Mouse-Tracking Physics
     // ==========================================================================
     function updateEyeTracking(e) {
         const sockets = document.querySelectorAll('.robot-eye-socket, .sun-eye-socket');
