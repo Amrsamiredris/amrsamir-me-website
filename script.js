@@ -71,12 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const builderAvatar = document.querySelector('.builder-avatar');
     const builderCombo = document.getElementById('builderCombo');
 
-    const defaultText = "Full site launching soon | Dubai, UAE";
-    const hoverMessages = [
-        "Let's build something extraordinary together 🚀",
-        "Delivering large-scale productions & AI engineering ⚡",
-        "Feel free to download my CV below 👇",
-        "Welcome to my personal portal across the MENA region ✨"
+    const rotatingMessages = [
+        "Large-Scale Events Management & Protocol 🎪",
+        "Full-Funnel Digital Marketing Strategies 📈",
+        "Using Tech & AI to Deliver Experiences & Design Systems ⚡",
+        "Full site coming soon — stay tuned! 🚀"
     ];
 
     // Ensure contentWrapper is visible immediately (safety guarantee)
@@ -97,14 +96,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // FlowFest Speech Bubble Typing Sequence (Only if chatText exists)
+    // FlowFest Speech Bubble Rotating Sequence
+    let currentMsgIdx = 0;
+    let cycleInterval = null;
+
+    function cycleNextMessage() {
+        if (!chatText || typeof gsap === 'undefined') return;
+        currentMsgIdx = (currentMsgIdx + 1) % rotatingMessages.length;
+        const nextMsg = rotatingMessages[currentMsgIdx];
+
+        gsap.to(chatText, {
+            duration: 0.25,
+            text: "...",
+            ease: "none",
+            onComplete: () => {
+                gsap.to(chatText, { duration: 0.65, text: nextMsg, ease: "none" });
+            }
+        });
+    }
+
     if (chatText && typeof gsap !== 'undefined') {
-        const tlChat = gsap.timeline();
+        const tlChat = gsap.timeline({
+            onComplete: () => {
+                // Start continuous cycling every 4.2 seconds
+                cycleInterval = setInterval(cycleNextMessage, 4200);
+            }
+        });
         tlChat.to(chatText, { duration: 0.45, text: "Hi Friends!", ease: "none", delay: 0.2 })
-              .to(chatText, { duration: 0.25, text: "...", ease: "none", delay: 1.2 })
+              .to(chatText, { duration: 0.25, text: "...", ease: "none", delay: 1.0 })
               .to(chatText, { duration: 0.65, text: "We are building something unique...", ease: "none", delay: 0.2 })
-              .to(chatText, { duration: 0.25, text: "...", ease: "none", delay: 1.2 })
-              .to(chatText, { duration: 0.75, text: defaultText, ease: "none", delay: 0.2 });
+              .to(chatText, { duration: 0.25, text: "...", ease: "none", delay: 1.0 })
+              .to(chatText, { duration: 0.75, text: rotatingMessages[0], ease: "none", delay: 0.2 });
     }
 
     // Subtle floating animation on Builder Avatar
@@ -118,42 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Interactive Hover & Tap Reactions on Avatar
-    let isInteracting = false;
-    function showRandomMessage() {
-        if (!chatText || isInteracting) return;
-        isInteracting = true;
-        const randomIndex = Math.floor(Math.random() * hoverMessages.length);
-        const selectedMsg = hoverMessages[randomIndex];
-
-        gsap.killTweensOf(chatText);
-        gsap.to(chatText, {
-            duration: 0.2,
-            text: "...",
-            ease: "none",
-            onComplete: () => {
-                gsap.to(chatText, { duration: 0.5, text: selectedMsg, ease: "none" });
-            }
-        });
-    }
-
-    function revertToDefault() {
-        if (!chatText) return;
-        isInteracting = false;
-        gsap.killTweensOf(chatText);
-        gsap.to(chatText, {
-            duration: 0.2,
-            text: "...",
-            ease: "none",
-            onComplete: () => {
-                gsap.to(chatText, { duration: 0.5, text: defaultText, ease: "none" });
-            }
-        });
-    }
-
+    // Interactive Tap/Hover reaction
     if (builderCombo) {
-        builderCombo.addEventListener('mouseenter', showRandomMessage);
-        builderCombo.addEventListener('mouseleave', revertToDefault);
+        builderCombo.addEventListener('mouseenter', () => {
+            if (cycleInterval) clearInterval(cycleInterval);
+            cycleNextMessage();
+        });
+        builderCombo.addEventListener('mouseleave', () => {
+            if (cycleInterval) clearInterval(cycleInterval);
+            cycleInterval = setInterval(cycleNextMessage, 4200);
+        });
     }
 
     // ==========================================================================
