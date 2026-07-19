@@ -1,6 +1,9 @@
 /* ==========================================================================
-   FlowFest-Inspired Neo-Brutalist Design System with Scroll & Active Polish
+   FlowFest-Inspired Neo-Brutalist Design System with Shrikhand Sticker Typography,
+   Rainbow Arcs, Interactive Sun Globe & Smooth Parallax Polish
    ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@500;600;700&family=Shrikhand&family=Titan+One&display=swap');
 
 *, *::before, *::after {
     box-sizing: border-box;
@@ -19,6 +22,7 @@
     --accent-mango: #f3a20f;
     --accent-orange: #f97028;
     --accent-teal: #64ffda;
+    --accent-yellow: #ffd166;
     
     /* Text Tokens */
     --text-primary: #121212;
@@ -26,6 +30,7 @@
     --text-muted: #6e6e6e;
     
     /* Fonts */
+    --font-flowfest: 'Shrikhand', 'Titan One', cursive;
     --font-display: 'Outfit', sans-serif;
     --font-body: 'Quicksand', sans-serif;
     
@@ -76,7 +81,7 @@ html.lenis, html.lenis body {
 }
 
 /* ==========================================================================
-   Loading Screen Overlay
+   Exact Flowfest Loading Area & Rainbow Side Arcs
    ========================================================================== */
 .loader-overlay {
     position: fixed;
@@ -91,36 +96,192 @@ html.lenis, html.lenis body {
     justify-content: center;
     opacity: 1;
     visibility: visible;
+    overflow: hidden;
 }
 
-.loader-card {
-    background-color: var(--card-bg);
-    border: 3px solid var(--border-color);
-    box-shadow: var(--shadow-lg);
-    border-radius: 16px;
-    padding: 24px 36px;
+.loader-center-box {
+    position: relative;
+    z-index: 10;
     display: flex;
     align-items: center;
-    gap: 16px;
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: var(--border-color);
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
 }
 
-.loader-dot {
-    width: 14px;
-    height: 14px;
+.loader-speech {
     background-color: var(--accent-orange);
+    border: 3.5px solid var(--border-color);
+    border-radius: 20px;
+    padding: 12px 24px;
+    box-shadow: var(--shadow-md);
+    font-family: var(--font-flowfest);
+    font-size: 1.3rem;
+    color: #fffefb;
+    -webkit-text-stroke: 1.5px var(--border-color);
+    text-shadow: 2px 2px 0px var(--border-color);
+    position: relative;
+    letter-spacing: 0.5px;
+}
+
+.loader-speech::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 14px solid var(--border-color);
+}
+
+.loader-speech::after {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-right: 10px solid var(--accent-orange);
+}
+
+/* Rainbow Stripe Arcs (Left & Right) */
+.rainbow-arc-left {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 280px;
+    height: 480px;
+    z-index: 2;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+}
+
+.rainbow-arc-right {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 280px;
+    height: 480px;
+    z-index: 2;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+
+.rainbow-stripe {
+    position: absolute;
+    border: 3.5px solid var(--border-color);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Left Bottom Arc Layers */
+.arc-l-1 { width: 280px; height: 280px; bottom: -20px; left: -20px; border-radius: 0 280px 0 0; background-color: var(--accent-pink); z-index: 1; }
+.arc-l-2 { width: 220px; height: 220px; bottom: -20px; left: -20px; border-radius: 0 220px 0 0; background-color: var(--accent-orange); z-index: 2; }
+.arc-l-3 { width: 160px; height: 160px; bottom: -20px; left: -20px; border-radius: 0 160px 0 0; background-color: var(--accent-mango); z-index: 3; }
+.arc-l-4 { width: 100px; height: 100px; bottom: -20px; left: -20px; border-radius: 0 100px 0 0; background-color: var(--accent-yellow); z-index: 4; }
+
+/* Right Top Arc Layers */
+.arc-r-1 { width: 280px; height: 440px; top: -20px; right: -20px; border-radius: 0 0 0 280px; background-color: var(--accent-pink); z-index: 1; }
+.arc-r-2 { width: 220px; height: 360px; top: -20px; right: -20px; border-radius: 0 0 0 220px; background-color: var(--accent-mango); z-index: 2; }
+.arc-r-3 { width: 160px; height: 280px; top: -20px; right: -20px; border-radius: 0 0 0 160px; background-color: var(--accent-orange); z-index: 3; }
+.arc-r-4 { width: 100px; height: 200px; top: -20px; right: -20px; border-radius: 0 0 0 100px; background-color: var(--accent-yellow); z-index: 4; }
+
+@media (max-width: 900px) {
+    .rainbow-arc-left, .rainbow-arc-right { transform: scale(0.6); opacity: 0.85; }
+    .rainbow-arc-left { left: -40px; bottom: -40px; }
+    .rainbow-arc-right { right: -40px; top: -40px; }
+}
+
+/* ==========================================================================
+   Interactive Sun Globe Character with Eye Tracking
+   ========================================================================== */
+.sun-globe-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sun-globe-container:hover {
+    transform: scale(1.1) rotate(6deg);
+}
+
+.sun-scallop-svg {
+    width: 86px;
+    height: 86px;
+    overflow: visible;
+    filter: drop-shadow(4px 4px 0px var(--border-color));
+}
+
+.sun-body {
+    fill: var(--accent-mango);
+    stroke: var(--border-color);
+    stroke-width: 3.5px;
+    stroke-linejoin: round;
+    transition: fill 0.2s ease;
+}
+
+.sun-globe-container:hover .sun-body {
+    fill: var(--accent-yellow);
+}
+
+/* Eyes & Pupils that Track the Mouse */
+.sun-eyes-box {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.sun-eye-socket {
+    width: 10px;
+    height: 10px;
+    background-color: #fffefb;
     border: 2px solid var(--border-color);
     border-radius: 50%;
-    animation: loaderBounce 0.6s infinite alternate cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
-@keyframes loaderBounce {
-    from { transform: translateY(0) scale(1); }
-    to { transform: translateY(-8px) scale(1.15); }
+.sun-pupil {
+    width: 5px;
+    height: 5px;
+    background-color: var(--border-color);
+    border-radius: 50%;
+    position: absolute;
+    transition: transform 0.08s ease-out;
+}
+
+.sun-smile {
+    position: absolute;
+    top: 58%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 9px;
+    border-bottom: 3px solid var(--border-color);
+    border-radius: 0 0 18px 18px;
+    pointer-events: none;
 }
 
 /* ==========================================================================
@@ -154,7 +315,7 @@ html.lenis, html.lenis body {
 }
 
 /* ==========================================================================
-   Background Grid & Floating Parallax Shapes
+   Background Grid & Parallax Shapes
    ========================================================================== */
 .bg-decoration {
     position: fixed;
@@ -174,19 +335,10 @@ html.lenis, html.lenis body {
     will-change: transform;
 }
 
-.shape-1 { top: 15%; left: 6%; }
-.shape-2 { top: 22%; right: 7%; }
-.shape-3 { top: 58%; left: 5%; }
-.shape-4 { bottom: 18%; right: 8%; }
-.shape-5 { top: 70%; right: 15%; opacity: 0.5; }
-
-@media (max-width: 800px) {
-    .floating-shape { transform: scale(0.6); opacity: 0.6; }
-    .shape-1 { left: 2%; top: 10%; }
-    .shape-2 { right: 2%; top: 14%; }
-    .shape-3 { left: 2%; top: 52%; }
-    .shape-4 { right: 2%; bottom: 10%; }
-}
+.shape-1 { top: 15%; left: 8%; }
+.shape-2 { top: 22%; right: 9%; }
+.shape-3 { top: 58%; left: 6%; }
+.shape-4 { bottom: 18%; right: 10%; }
 
 /* ==========================================================================
    Main Layout & Container
@@ -210,7 +362,7 @@ html.lenis, html.lenis body {
 }
 
 /* ==========================================================================
-   FlowFest Combo: Builder Avatar & Speech Prompt Bubble
+   FlowFest Combo: Sun Character & Speech Bubble
    ========================================================================== */
 .builder-combo {
     display: flex;
@@ -221,24 +373,15 @@ html.lenis, html.lenis body {
     flex-wrap: wrap;
 }
 
-.builder-avatar {
-    cursor: pointer;
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.builder-avatar:hover {
-    transform: rotate(-5deg) scale(1.08);
-}
-
 .chat-cloud {
     background-color: var(--card-bg);
-    border: 3px solid var(--border-color);
+    border: 3.5px solid var(--border-color);
     border-radius: 20px;
-    padding: 16px 26px;
+    padding: 16px 28px;
     box-shadow: var(--shadow-md);
     position: relative;
-    max-width: 380px;
-    min-width: 200px;
+    max-width: 420px;
+    min-width: 220px;
     min-height: 64px;
     display: flex;
     align-items: center;
@@ -257,26 +400,26 @@ html.lenis, html.lenis body {
 
 .chat-tail {
     position: absolute;
-    left: -14px;
+    left: -16px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 11px solid transparent;
-    border-bottom: 11px solid transparent;
-    border-right: 14px solid var(--border-color);
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-right: 16px solid var(--border-color);
 }
 
 .chat-tail::after {
     content: "";
     position: absolute;
     left: 4px;
-    top: -8px;
+    top: -9px;
     width: 0;
     height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-right: 10px solid var(--card-bg);
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-right: 12px solid var(--card-bg);
 }
 
 @media (max-width: 560px) {
@@ -286,25 +429,25 @@ html.lenis, html.lenis body {
     }
     .chat-tail {
         left: 50%;
-        top: -14px;
+        top: -16px;
         transform: translateX(-50%);
-        border-left: 11px solid transparent;
-        border-right: 11px solid transparent;
-        border-bottom: 14px solid var(--border-color);
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-bottom: 16px solid var(--border-color);
         border-top: none;
     }
     .chat-tail::after {
-        left: -8px;
+        left: -9px;
         top: 4px;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-bottom: 10px solid var(--card-bg);
+        border-left: 9px solid transparent;
+        border-right: 9px solid transparent;
+        border-bottom: 12px solid var(--card-bg);
         border-top: none;
     }
 }
 
 /* ==========================================================================
-   Typography, Badge & Live Focus Status Card
+   Exact Flowfest Shrikhand Sticker Typography & Badge
    ========================================================================== */
 .status-badge {
     display: inline-flex;
@@ -337,16 +480,35 @@ html.lenis, html.lenis body {
     100% { transform: scale(0.95); opacity: 1; }
 }
 
-.display-name {
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6.5vw, 4.2rem);
-    font-weight: 900;
-    letter-spacing: -1.5px;
-    color: var(--border-color);
-    text-transform: uppercase;
+/* White Font with Triple Thick Black Outline/Shadow (Exact Flowfest Screenshot 2) */
+.flowfest-sticker-title {
+    font-family: var(--font-flowfest);
+    font-size: clamp(2.8rem, 7.5vw, 4.8rem);
+    color: #fffefb;
+    -webkit-text-stroke: 4px var(--border-color);
+    text-shadow: 
+        4px 4px 0px var(--border-color),
+        6px 6px 0px var(--border-color),
+        8px 8px 0px rgba(18, 18, 18, 0.2);
     line-height: 1.1;
-    margin-bottom: 12px;
-    text-shadow: 4px 4px 0px var(--accent-mango);
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+}
+
+.flowfest-subbanner {
+    display: inline-block;
+    background-color: var(--accent-orange);
+    border: 3.5px solid var(--border-color);
+    box-shadow: 6px 6px 0px var(--border-color);
+    padding: 10px 28px;
+    border-radius: 16px;
+    font-family: var(--font-flowfest);
+    font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+    color: #fffefb;
+    -webkit-text-stroke: 2px var(--border-color);
+    text-shadow: 3px 3px 0px var(--border-color);
+    transform: rotate(-2deg);
+    margin-bottom: 36px;
 }
 
 .tagline {
@@ -357,6 +519,9 @@ html.lenis, html.lenis body {
     line-height: 1.45;
 }
 
+/* ==========================================================================
+   Live Focus Status Card & About Card
+   ========================================================================== */
 .live-status-card {
     background-color: var(--card-bg);
     border: 3px solid var(--border-color);
@@ -406,9 +571,6 @@ html.lenis, html.lenis body {
     color: var(--text-primary);
 }
 
-/* ==========================================================================
-   About Card & Interactive Tilt Effect
-   ========================================================================== */
 .about-card {
     background-color: var(--card-bg);
     border: 3px solid var(--border-color);
@@ -421,14 +583,14 @@ html.lenis, html.lenis body {
 }
 
 .about-text {
-    font-size: clamp(1.05rem, 2vw, 1.2rem);
+    font-size: clamp(1.1rem, 2vw, 1.25rem);
     font-weight: 600;
     color: var(--text-primary);
     line-height: 1.6;
 }
 
 /* ==========================================================================
-   CTA Button (Download CV) & Press Kit Box
+   CTA Button & Press Kit Box
    ========================================================================== */
 .cta-container {
     margin-bottom: 36px;
@@ -577,26 +739,27 @@ html.lenis, html.lenis body {
 }
 
 .ticker-item {
-    font-family: var(--font-display);
-    font-size: 1.35rem;
-    font-weight: 900;
-    color: var(--border-color);
+    font-family: var(--font-flowfest);
+    font-size: 1.4rem;
+    color: #fffefb;
+    -webkit-text-stroke: 1.5px var(--border-color);
+    text-shadow: 2px 2px 0px var(--border-color);
     letter-spacing: 1px;
     white-space: nowrap;
-    text-shadow: 2px 2px 0px var(--card-bg);
 }
 
 /* ==========================================================================
    Section Titles & Capabilities Section
    ========================================================================== */
 .section-title {
-    font-family: var(--font-display);
-    font-size: clamp(1.8rem, 4vw, 2.4rem);
-    font-weight: 900;
-    color: var(--border-color);
+    font-family: var(--font-flowfest);
+    font-size: clamp(2rem, 4.5vw, 2.8rem);
+    color: #fffefb;
+    -webkit-text-stroke: 2.5px var(--border-color);
+    text-shadow: 4px 4px 0px var(--border-color);
     margin-bottom: 28px;
     text-transform: uppercase;
-    letter-spacing: -0.5px;
+    letter-spacing: 1px;
 }
 
 .capabilities-section {
@@ -656,7 +819,7 @@ html.lenis, html.lenis body {
 }
 
 /* ==========================================================================
-   Contact Section & Contact Cards (Robust Mobile & Desktop)
+   Contact Section & Cards
    ========================================================================== */
 .contact-section {
     width: 100%;
@@ -737,7 +900,6 @@ html.lenis, html.lenis body {
     text-overflow: ellipsis;
 }
 
-/* Mobile Responsiveness for Contact Cards */
 @media (max-width: 600px) {
     .contact-grid {
         grid-template-columns: 1fr;
@@ -748,12 +910,6 @@ html.lenis, html.lenis body {
     }
     .contact-value {
         font-size: 0.95rem;
-    }
-    .theme-toggle-btn {
-        top: 16px;
-        right: 16px;
-        padding: 8px 14px;
-        font-size: 0.75rem;
     }
 }
 
@@ -771,11 +927,12 @@ html.lenis, html.lenis body {
 }
 
 .form-title {
-    font-family: var(--font-display);
-    font-size: 1.45rem;
-    font-weight: 900;
-    color: var(--border-color);
-    margin-bottom: 6px;
+    font-family: var(--font-flowfest);
+    font-size: 1.6rem;
+    color: #fffefb;
+    -webkit-text-stroke: 2px var(--border-color);
+    text-shadow: 3px 3px 0px var(--border-color);
+    margin-bottom: 8px;
     text-transform: uppercase;
 }
 

@@ -1,5 +1,6 @@
 /**
- * FlowFest-Inspired GSAP Animations, Lenis Smooth Scroll, Parallax & Active Polish
+ * FlowFest-Inspired GSAP Animations, Real-Time Sun Pupil Mouse-Tracking,
+ * Rainbow Stripe Arcs & Interactive Parallax Polish
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,6 +9,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof TextPlugin !== 'undefined') gsap.registerPlugin(TextPlugin);
         if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
     }
+
+    // ==========================================================================
+    // Real-Time Sun Globe Eye Pupil Mouse-Tracking Physics
+    // ==========================================================================
+    function updateEyeTracking(e) {
+        const sockets = document.querySelectorAll('.sun-eye-socket');
+        sockets.forEach(socket => {
+            const rect = socket.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const deltaX = e.clientX - centerX;
+            const deltaY = e.clientY - centerY;
+            const angle = Math.atan2(deltaY, deltaX);
+            // Limit pupil movement inside the 10px eye socket
+            const distance = Math.min(2.6, Math.hypot(deltaX, deltaY) / 22);
+            
+            const pupil = socket.querySelector('.sun-pupil');
+            if (pupil) {
+                const moveX = Math.cos(angle) * distance;
+                const moveY = Math.sin(angle) * distance;
+                pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            }
+        });
+    }
+
+    window.addEventListener('mousemove', updateEyeTracking);
 
     // ==========================================================================
     // Day / Night Theme Switcher Logic
@@ -68,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('loader');
     const contentWrapper = document.querySelector('.content-wrapper');
     const chatText = document.getElementById('chatText');
-    const builderAvatar = document.querySelector('.builder-avatar');
+    const sunGlobe = document.querySelector('.builder-combo .sun-globe-container');
     const builderCombo = document.getElementById('builderCombo');
 
     const rotatingMessages = [
@@ -83,17 +110,44 @@ document.addEventListener('DOMContentLoaded', () => {
         gsap.set(contentWrapper, { opacity: 1, y: 0 });
     }
 
-    // If loader exists on page (index.html), animate fade-out cleanly
-    if (loader && typeof gsap !== 'undefined') {
-        gsap.to(loader, {
-            duration: 0.5,
-            opacity: 0,
-            delay: 0.5,
-            onComplete: () => {
-                loader.style.display = 'none';
-                if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
-            }
+    // ==========================================================================
+    // Rainbow Arcs Animation & Loading Screen Sequence
+    // ==========================================================================
+    if (typeof gsap !== 'undefined') {
+        // Animate rainbow stripes gentle breathing expansion
+        gsap.to('.rainbow-arc-left .rainbow-stripe', {
+            scale: 1.06,
+            duration: 2.8,
+            stagger: 0.2,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
         });
+
+        gsap.to('.rainbow-arc-right .rainbow-stripe', {
+            scale: 1.06,
+            duration: 2.8,
+            stagger: 0.2,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // If loader exists on page (index.html), animate entrance and transition
+        if (loader) {
+            const tlLoader = gsap.timeline();
+            tlLoader.fromTo('.loader-center-box', { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.5)" })
+                    .to(loader, {
+                        duration: 0.75,
+                        opacity: 0,
+                        delay: 1.2,
+                        ease: "power2.inOut",
+                        onComplete: () => {
+                            loader.style.display = 'none';
+                            if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+                        }
+                    });
+        }
     }
 
     // FlowFest Speech Bubble Rotating Sequence
@@ -118,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chatText && typeof gsap !== 'undefined') {
         const tlChat = gsap.timeline({
             onComplete: () => {
-                // Start continuous cycling every 4.2 seconds
                 cycleInterval = setInterval(cycleNextMessage, 4200);
             }
         });
@@ -129,11 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
               .to(chatText, { duration: 0.75, text: rotatingMessages[0], ease: "none", delay: 0.2 });
     }
 
-    // Subtle floating animation on Builder Avatar
-    if (builderAvatar && typeof gsap !== 'undefined') {
-        gsap.to(builderAvatar, {
+    // Gentle floating animation on Sun Globe
+    if (sunGlobe && typeof gsap !== 'undefined') {
+        gsap.to(sunGlobe, {
             y: -8,
-            duration: 2.2,
+            rotation: 3,
+            duration: 2.5,
             repeat: -1,
             yoyo: true,
             ease: "sine.inOut"
@@ -180,21 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        window.addEventListener('mousemove', (e) => {
-            const mouseX = (e.clientX - window.innerWidth / 2) / window.innerWidth;
-            const mouseY = (e.clientY - window.innerHeight / 2) / window.innerHeight;
-            floatingShapes.forEach((shape) => {
-                const speed = parseFloat(shape.getAttribute('data-speed') || 0.2);
-                gsap.to(shape, {
-                    x: mouseX * speed * 120,
-                    y: mouseY * speed * 120,
-                    duration: 1.5,
-                    ease: "power2.out"
-                });
-            });
-        });
-
-        // Capabilities Cards Reveal safely
+        // Capabilities Cards & Contact Cards Reveal safely
         if (typeof ScrollTrigger !== 'undefined') {
             const capCards = document.querySelectorAll('.cap-card');
             if (capCards.length > 0) {
@@ -215,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // Contact Cards Reveal safely
             const contactCards = document.querySelectorAll('.contact-card');
             if (contactCards.length > 0) {
                 gsap.from(contactCards, {

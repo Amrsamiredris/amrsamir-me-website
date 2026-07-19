@@ -8,10 +8,10 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f3a20f%22 stroke=%22%23121212%22 stroke-width=%228%22/><text y=%22.8em%22 x=%22.15em%22 font-size=%2280%22 font-family=%22sans-serif%22 font-weight=%22bold%22 fill=%22%23121212%22>A</text></svg>">
 
-    <!-- Google Fonts: Quicksand & Outfit -->
+    <!-- Google Fonts: Shrikhand, Titan One, Outfit, Quicksand -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@500;600;700&family=Shrikhand&family=Titan+One&display=swap" rel="stylesheet">
 
     <!-- Lenis & GSAP -->
     <script src="https://cdn.jsdelivr.net/npm/@lenis/lenis@1.1.13/dist/lenis.min.js"></script>
@@ -81,7 +81,6 @@
         }
         .cms-btn:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #fffefb; background-color: #f3a20f; }
 
-        /* Editable Element Highlighting */
         .cms-editable {
             position: relative;
             cursor: pointer !important;
@@ -115,7 +114,6 @@
             opacity: 1;
         }
 
-        /* Modal Box */
         .cms-modal-overlay {
             position: fixed;
             top: 0;
@@ -215,8 +213,6 @@
             font-weight: 700;
             cursor: pointer;
         }
-
-        /* Toast Notification */
         .cms-toast {
             position: fixed;
             bottom: 30px;
@@ -257,7 +253,7 @@
         <span class="theme-text" id="themeLabel">NIGHT</span>
     </button>
 
-    <!-- Background Floating Parallax Vectors -->
+    <!-- Background Grid & Parallax Shapes -->
     <div class="bg-decoration">
         <div class="floating-shape shape-star shape-1" data-speed="0.15">
             <svg viewBox="0 0 100 100" width="70" height="70"><polygon points="50,5 62,38 97,38 68,58 79,91 50,70 21,91 32,58 3,38 38,38" fill="#f489a3" stroke="#121212" stroke-width="4"/></svg>
@@ -271,28 +267,22 @@
         <div class="floating-shape shape-spark shape-4" data-speed="-0.18">
             <svg viewBox="0 0 100 100" width="60" height="60"><polygon points="50,0 60,40 100,50 60,60 50,100 40,60 0,50 40,40" fill="#f97028" stroke="#121212" stroke-width="4"/></svg>
         </div>
-        <div class="floating-shape shape-circle shape-5" data-speed="0.2">
-            <svg viewBox="0 0 100 100" width="50" height="50"><circle cx="50" cy="50" r="40" fill="#fffefb" stroke="#121212" stroke-width="5"/></svg>
-        </div>
     </div>
     
     <div class="main-container">
-        <!-- Main Content Wrapper (Guaranteed Visible) -->
-        <main class="content-wrapper" style="opacity: 1 !important; visibility: visible !important;">
+        <main class="content-wrapper">
             
-            <!-- FlowFest Combo -->
+            <!-- FlowFest Combo: Interactive Scalloped Sun Globe & Speech Bubble -->
             <div class="builder-combo cms-editable" data-cms-name="Avatar & Speech Bubble (.builder-combo)" data-cms-file="index.html / script.js" id="builderCombo">
-                <div class="builder-avatar">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="95" height="95">
-                        <rect x="15" y="25" width="90" height="80" rx="28" fill="#f3a20f" stroke="#121212" stroke-width="4.5"/>
-                        <rect x="5" y="50" width="10" height="24" rx="4" fill="#f489a3" stroke="#121212" stroke-width="4"/>
-                        <rect x="105" y="50" width="10" height="24" rx="4" fill="#f489a3" stroke="#121212" stroke-width="4"/>
-                        <path d="M60 25 V 8 M 60 8 m -8, 0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0" fill="#f97028" stroke="#121212" stroke-width="4.5"/>
-                        <rect x="28" y="45" width="64" height="24" rx="12" fill="#121212"/>
-                        <circle cx="45" cy="57" r="4" fill="#64ffda"/>
-                        <circle cx="75" cy="57" r="4" fill="#64ffda"/>
-                        <path d="M 45 85 Q 60 96 75 85" fill="none" stroke="#121212" stroke-width="4.5" stroke-linecap="round"/>
+                <div class="sun-globe-container">
+                    <svg class="sun-scallop-svg" viewBox="0 0 100 100">
+                        <path class="sun-body" d="M 50,4 L 56,12 L 66,7 L 68,17 L 78,16 L 76,26 L 86,28 L 81,38 L 90,43 L 83,52 L 90,60 L 81,65 L 86,75 L 76,77 L 78,87 L 68,86 L 66,96 L 56,91 L 50,99 L 44,91 L 34,96 L 32,86 L 22,87 L 24,77 L 14,75 L 19,65 L 10,60 L 17,52 L 10,43 L 19,38 L 14,28 L 24,26 L 22,16 L 32,17 L 34,7 L 44,12 Z" />
                     </svg>
+                    <div class="sun-eyes-box">
+                        <div class="sun-eye-socket"><div class="sun-pupil"></div></div>
+                        <div class="sun-eye-socket"><div class="sun-pupil"></div></div>
+                    </div>
+                    <div class="sun-smile"></div>
                 </div>
                 <div class="chat-cloud" id="chatCloud">
                     <p class="chat-cloud__p" id="chatText">Full site coming soon ✦ Designing integrated experiences</p>
@@ -306,8 +296,11 @@
                 <span class="status-text">COMING SOON</span>
             </div>
 
-            <!-- Name Header -->
-            <h1 class="display-name cms-editable" data-cms-name="Display Name Header (.display-name)" data-cms-file="index.html">AMR SAMIR EDRIS</h1>
+            <!-- FlowFest Sticker Font Name Header -->
+            <h1 class="flowfest-sticker-title cms-editable" data-cms-name="Display Name Header (.flowfest-sticker-title)" data-cms-file="index.html">AMR SAMIR EDRIS</h1>
+
+            <!-- Flowfest Subbanner Badge -->
+            <div class="flowfest-subbanner cms-editable" data-cms-name="Flowfest Subbanner (.flowfest-subbanner)" data-cms-file="index.html">Events & Digital Marketing is back.</div>
 
             <!-- Tagline -->
             <p class="tagline cms-editable" data-cms-name="Tagline (.tagline)" data-cms-file="index.html">Full spectrum Events Production & Digital Marketing | MENA</p>
@@ -391,7 +384,7 @@
             <section class="contact-section cms-editable" data-cms-name="Connect Directly Contact Section (.contact-section)" data-cms-file="index.html">
                 <h2 class="section-title">CONNECT DIRECTLY</h2>
                 <div class="contact-grid">
-                    <a href="#" class="contact-card card-email tilt-card" onclick="return false;">
+                    <a href="mailto:amrsamiredris@gmail.com" class="contact-card card-email tilt-card" onclick="return false;">
                         <div class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                         </div>
@@ -400,7 +393,7 @@
                             <span class="contact-value">amrsamiredris@gmail.com</span>
                         </div>
                     </a>
-                    <a href="#" class="contact-card card-whatsapp tilt-card" onclick="return false;">
+                    <a href="https://wa.me/971542191028" class="contact-card card-whatsapp tilt-card" onclick="return false;">
                         <div class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
                         </div>
