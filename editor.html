@@ -271,6 +271,52 @@
     </div>
     
     <div class="main-container">
+        <!-- EXTREME STUDIO CONTROL PANEL -->
+        <div class="studio-control-box tilt-card" style="margin-bottom: 32px; background: var(--card-bg); border: 4px solid var(--border-color); box-shadow: 6px 6px 0px var(--border-color); border-radius: 20px; padding: 24px; position: relative; z-index: 50;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--border-color); padding-bottom: 14px; margin-bottom: 20px;">
+                <div style="font-family: var(--font-display); font-weight: 900; font-size: 1.35rem; color: #f97028; display: flex; align-items: center; gap: 10px;">
+                    <span>🎛️ EXTREME STUDIO CONTROL PANEL</span>
+                    <span class="badge-pink" style="font-size: 0.75rem; padding: 4px 10px;">LIVE CONTROLLER</span>
+                </div>
+                <div style="font-size: 0.85rem; font-weight: 800; color: #10b981;">⚡ All sliders & inputs sync live on the spot across all pages!</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+                <!-- Section 1: Contact Links & Buttons -->
+                <div style="background: rgba(0,0,0,0.03); border: 2.5px solid var(--border-color); border-radius: 14px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; margin-bottom: 14px; color: var(--border-color);">📱 BUTTONS & CONTACT LINKS</div>
+                    
+                    <label style="display: block; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px;">Email Address:</label>
+                    <input type="text" id="studioEmail" class="cms-modal-textarea" style="height: 38px; min-height: 38px; margin-bottom: 12px; font-size: 0.9rem;" value="amrsamiredris@gmail.com" oninput="liveUpdateExtremeStudio()">
+                    
+                    <label style="display: block; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px;">WhatsApp Display Text:</label>
+                    <input type="text" id="studioWaDisplay" class="cms-modal-textarea" style="height: 38px; min-height: 38px; margin-bottom: 12px; font-size: 0.9rem;" value="+971 54 219 1028" oninput="liveUpdateExtremeStudio()">
+                    
+                    <label style="display: block; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px;">WhatsApp Phone ID (Numbers only):</label>
+                    <input type="text" id="studioWaClean" class="cms-modal-textarea" style="height: 38px; min-height: 38px; margin-bottom: 12px; font-size: 0.9rem;" value="971542191028" oninput="liveUpdateExtremeStudio()">
+                    
+                    <label style="display: block; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px;">CTA Button Text:</label>
+                    <input type="text" id="studioCtaText" class="cms-modal-textarea" style="height: 38px; min-height: 38px; font-size: 0.9rem;" value="Download CV" oninput="liveUpdateExtremeStudio()">
+                </div>
+
+                <!-- Section 2: Animations & Speeds -->
+                <div style="background: rgba(0,0,0,0.03); border: 2.5px solid var(--border-color); border-radius: 14px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; margin-bottom: 14px; color: var(--border-color);">⚡ ANIMATION & SPEED CONTROLLER</div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <span style="font-weight: 800; font-size: 0.85rem;">Master Animation State:</span>
+                        <button id="studioPauseToggle" class="cms-btn" style="background-color: #10b981; color: #fffefb;" onclick="toggleStudioAnimations()">▶️ RUNNING</button>
+                    </div>
+
+                    <label style="display: block; font-weight: 800; font-size: 0.8rem; margin-bottom: 6px;">GSAP / Floating Speed (<span id="speedValDisplay">1.0x</span>):</label>
+                    <input type="range" id="studioSpeedRange" min="0.1" max="3.0" step="0.1" value="1.0" style="width: 100%; cursor: pointer; margin-bottom: 16px;" oninput="liveUpdateExtremeStudio()">
+
+                    <label style="display: block; font-weight: 800; font-size: 0.8rem; margin-bottom: 6px;">Marquee Ticker Duration (<span id="tickerValDisplay">28s</span>):</label>
+                    <input type="range" id="studioTickerRange" min="8" max="70" step="2" value="28" style="width: 100%; cursor: pointer;" oninput="liveUpdateExtremeStudio()">
+                </div>
+            </div>
+        </div>
+
         <main class="content-wrapper">
             
             <!-- FlowFest Combo: Interactive Robot Character & Speech Bubble -->
@@ -603,7 +649,28 @@
             window.location.reload(); // Restore original texts
         }
 
-        async function syncLiveContentToLaunchingSite(showToastMsg = true) {
+        let studioAnimationsPaused = false;
+
+        function toggleStudioAnimations() {
+            studioAnimationsPaused = !studioAnimationsPaused;
+            const btn = document.getElementById('studioPauseToggle');
+            if (studioAnimationsPaused) {
+                btn.style.backgroundColor = '#f489a3';
+                btn.textContent = '⏸️ PAUSED';
+            } else {
+                btn.style.backgroundColor = '#10b981';
+                btn.textContent = '▶️ RUNNING';
+            }
+            liveUpdateExtremeStudio();
+        }
+
+        function liveUpdateExtremeStudio() {
+            const speedVal = parseFloat(document.getElementById('studioSpeedRange')?.value || 1.0);
+            const tickerVal = parseInt(document.getElementById('studioTickerRange')?.value || 28);
+            
+            if (document.getElementById('speedValDisplay')) document.getElementById('speedValDisplay').textContent = speedVal + 'x';
+            if (document.getElementById('tickerValDisplay')) document.getElementById('tickerValDisplay').textContent = tickerVal + 's';
+
             const liveMap = {
                 displayName: document.querySelector('.display-name')?.innerText?.trim() || "AMR SAMIR EDRIS",
                 statusText: document.querySelector('.status-text')?.innerText?.trim() || "COMING SOON",
@@ -612,10 +679,46 @@
                 currentFocus: document.querySelector('.live-content')?.innerHTML?.trim() || "Currently project managing <strong>Sheikh Zayed Summer Festival</strong>",
                 aboutText: document.querySelector('.about-text')?.innerText?.trim() || "",
                 speechBubble: document.getElementById('chatText')?.innerText?.trim() || "Full site coming soon ✦ Designing integrated experiences",
-                ctaButton: document.querySelector('.cta-text')?.innerText?.trim() || "Download CV"
+                ctaButton: document.getElementById('studioCtaText')?.value?.trim() || document.querySelector('.cta-text')?.innerText?.trim() || "Download CV",
+                emailAddress: document.getElementById('studioEmail')?.value?.trim() || "amrsamiredris@gmail.com",
+                whatsappNumber: document.getElementById('studioWaDisplay')?.value?.trim() || "+971 54 219 1028",
+                whatsappClean: document.getElementById('studioWaClean')?.value?.trim() || "971542191028",
+                animationsPaused: studioAnimationsPaused,
+                animationSpeed: speedVal,
+                tickerSpeed: tickerVal
             };
 
             localStorage.setItem('amr_live_content', JSON.stringify(liveMap));
+            if (typeof applyLiveContentSync === 'function') {
+                applyLiveContentSync(liveMap);
+            }
+        }
+
+        async function syncLiveContentToLaunchingSite(showToastMsg = true) {
+            const speedVal = parseFloat(document.getElementById('studioSpeedRange')?.value || 1.0);
+            const tickerVal = parseInt(document.getElementById('studioTickerRange')?.value || 28);
+
+            const liveMap = {
+                displayName: document.querySelector('.display-name')?.innerText?.trim() || "AMR SAMIR EDRIS",
+                statusText: document.querySelector('.status-text')?.innerText?.trim() || "COMING SOON",
+                subbanner: document.querySelector('.flowfest-subbanner')?.innerText?.trim() || "Events & Digital Marketing is back.",
+                tagline: document.querySelector('.tagline')?.innerText?.trim() || "Full spectrum Events Production & Digital Marketing | MENA",
+                currentFocus: document.querySelector('.live-content')?.innerHTML?.trim() || "Currently project managing <strong>Sheikh Zayed Summer Festival</strong>",
+                aboutText: document.querySelector('.about-text')?.innerText?.trim() || "",
+                speechBubble: document.getElementById('chatText')?.innerText?.trim() || "Full site coming soon ✦ Designing integrated experiences",
+                ctaButton: document.getElementById('studioCtaText')?.value?.trim() || document.querySelector('.cta-text')?.innerText?.trim() || "Download CV",
+                emailAddress: document.getElementById('studioEmail')?.value?.trim() || "amrsamiredris@gmail.com",
+                whatsappNumber: document.getElementById('studioWaDisplay')?.value?.trim() || "+971 54 219 1028",
+                whatsappClean: document.getElementById('studioWaClean')?.value?.trim() || "971542191028",
+                animationsPaused: studioAnimationsPaused,
+                animationSpeed: speedVal,
+                tickerSpeed: tickerVal
+            };
+
+            localStorage.setItem('amr_live_content', JSON.stringify(liveMap));
+            if (typeof applyLiveContentSync === 'function') {
+                applyLiveContentSync(liveMap);
+            }
 
             try {
                 await fetch('/api/content', {
@@ -626,7 +729,7 @@
             } catch (err) {}
 
             if (showToastMsg) {
-                showToast("🚀 Live Content Published! Your main launching website (index.html) is now updated!");
+                showToast("🚀 Live Content Published! Your main launching website (index.html) is now updated across links, speeds, and text!");
             }
         }
 

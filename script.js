@@ -66,6 +66,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (content.ctaButton) {
             document.querySelectorAll('.cta-text').forEach(el => el.innerText = content.ctaButton);
         }
+        if (content.emailAddress) {
+            document.querySelectorAll('.card-email').forEach(el => el.setAttribute('href', 'mailto:' + content.emailAddress));
+            document.querySelectorAll('.card-email .contact-value').forEach(el => el.innerText = content.emailAddress);
+        }
+        if (content.whatsappNumber || content.whatsappClean) {
+            const cleanNum = content.whatsappClean || (content.whatsappNumber ? content.whatsappNumber.replace(/[^0-9]/g, '') : '971542191028');
+            const displayNum = content.whatsappNumber || '+971 54 219 1028';
+            document.querySelectorAll('.card-whatsapp').forEach(el => el.setAttribute('href', 'https://wa.me/' + cleanNum));
+            document.querySelectorAll('.card-whatsapp .contact-value').forEach(el => el.innerText = displayNum);
+        }
+
+        // Extreme Animation & Speed Sync
+        const isPaused = content.animationsPaused === true;
+        const speed = typeof content.animationSpeed === 'number' ? content.animationSpeed : 1.0;
+        const tickerSpeed = typeof content.tickerSpeed === 'number' ? content.tickerSpeed : 28;
+
+        // Apply to GSAP master timeline if loaded
+        if (typeof gsap !== 'undefined' && gsap.globalTimeline) {
+            gsap.globalTimeline.timeScale(isPaused ? 0 : speed);
+        }
+
+        // Apply to CSS animations across the board
+        document.querySelectorAll('.ticker-track').forEach(el => {
+            el.style.animationPlayState = isPaused ? 'paused' : 'running';
+            if (!isPaused && tickerSpeed > 0) el.style.animationDuration = tickerSpeed + 's';
+        });
+        document.querySelectorAll('.pulse-dot, .rainbow-stripe, .live-indicator').forEach(el => {
+            el.style.animationPlayState = isPaused ? 'paused' : 'running';
+        });
     }
 
     // Run sync right now on page load
