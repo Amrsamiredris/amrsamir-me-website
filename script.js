@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Real-Time Sun Globe Eye Pupil Mouse-Tracking Physics
     // ==========================================================================
     function updateEyeTracking(e) {
-        const sockets = document.querySelectorAll('.sun-eye-socket');
+        const sockets = document.querySelectorAll('.robot-eye-socket, .sun-eye-socket');
         sockets.forEach(socket => {
             const rect = socket.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const deltaX = e.clientX - centerX;
             const deltaY = e.clientY - centerY;
             const angle = Math.atan2(deltaY, deltaX);
-            // Limit pupil movement inside the 10px eye socket
-            const distance = Math.min(2.6, Math.hypot(deltaX, deltaY) / 22);
+            // Limit pupil movement inside the 13px eye socket
+            const distance = Math.min(3.0, Math.hypot(deltaX, deltaY) / 20);
             
-            const pupil = socket.querySelector('.sun-pupil');
+            const pupil = socket.querySelector('.robot-pupil, .sun-pupil');
             if (pupil) {
                 const moveX = Math.cos(angle) * distance;
                 const moveY = Math.sin(angle) * distance;
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('loader');
     const contentWrapper = document.querySelector('.content-wrapper');
     const chatText = document.getElementById('chatText');
-    const sunGlobe = document.querySelector('.builder-combo .sun-globe-container');
+    const robotAvatar = document.querySelector('.builder-combo .robot-avatar-container');
     const builderCombo = document.getElementById('builderCombo');
 
     const rotatingMessages = [
@@ -182,9 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
               .to(chatText, { duration: 0.75, text: rotatingMessages[0], ease: "none", delay: 0.2 });
     }
 
-    // Gentle floating animation on Sun Globe
-    if (sunGlobe && typeof gsap !== 'undefined') {
-        gsap.to(sunGlobe, {
+    // Gentle floating animation on Robot Avatar
+    if (robotAvatar && typeof gsap !== 'undefined') {
+        gsap.to(robotAvatar, {
             y: -8,
             rotation: 3,
             duration: 2.5,
